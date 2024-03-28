@@ -1,0 +1,45 @@
+{
+    "nodes":[
+        {
+            "id":0,
+            "prompt":"",
+            "input_variables":["query"],
+            "output_variables":["reply"],
+            "is_output_node":true,
+            "next_nodes": [
+                {
+                    "id":1,
+                    "condition_type":"prompt",
+                    "condition_value":""
+            }
+            ],
+            "is_decision": false,
+            "output_parser":"string",
+            "initiate_conversation":false
+        },
+        {
+            "id":1,
+            "prompt":"",
+            "input_variables":["reply"],
+            "output_variables":["query", "reply"],
+            "is_output_node":false,
+            "next_nodes": [
+                {
+                    "id":0,
+                    "condition_type":"prompt",
+                    "condition_value":""
+                },
+                {
+                    "id":2,
+                    "condition_type":"prompt",
+                    "condition_value":""
+                }
+
+            ],
+            "is_decision": true,
+            "output_parser":"json"
+        }
+    ],
+    "connections":[]
+
+}

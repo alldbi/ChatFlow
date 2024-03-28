@@ -1,0 +1,6 @@
+{
+    "llm_model": "gpt-3.5-turbo-0125",
+    "flow_file_path": "sample_flow.json",
+    "max_tokens": 200,
+    "temp": 0.1
+}
