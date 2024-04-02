@@ -9,14 +9,43 @@ from pydantic import BaseModel
 from pydantic import create_model
 
 from .flow_item import FlowItem
+from .condition import Condition
+
+class Node(FlowItem):
+    def __init__(self, model_name,
+                 prompt_template: str, 
+                 input_variables:List[str], 
+                 output_variables: Union[Dict[str, type], str],
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
+                 temperature: float = 0.1,
+                 max_tokens: int = 400,
+                 verbose: bool = False,
+                 return_inputs: bool = False,
+                 is_output: bool = False) -> None:
+        self.template = prompt_template
+        self.input_variables: List[str] = input_variables
+        self.output_variables: str = output_variables
+        self.next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]] = next_item
+        self.model_name = model_name
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.return_inputs = return_inputs
+        self.is_output = is_output
+        self.verbose = verbose
+
+    def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]])-> None:
+        self.next = next
+    
+    def get_next_item(self):
+        return self.next
 
 
-
-class JsonOutputNode(FlowItem):
+class JsonOutputNode(Node):
     def __init__(self, model_name,
                  prompt_template: str, 
                  input_variables:List[str], 
                  output_variables: Dict[str, type],
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
                  temperature: float = 0.1,
                  max_tokens: int = 400,
                  verbose: bool = False,
@@ -29,11 +58,7 @@ class JsonOutputNode(FlowItem):
         output_variables: a dictionary with variable names keys and variable types values
                 {'a':int, 'b':str}
         """
-        self.template = prompt_template
-        self.input_variables: List[str] = input_variables
-        self.output_variables: Dict[str, type] = output_variables
-        self.return_inputs = return_inputs
-        self.is_output = is_output
+        super().__init__(model_name, prompt_template, input_variables, output_variables, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
 
         self.parser = self._get_output_parser()
 
@@ -53,7 +78,6 @@ class JsonOutputNode(FlowItem):
     
     
     def run(self, inp: Dict):
-        # TODO run the prompt and generate output
         try:
             output = self.chain.invoke(input=inp)['parsed']
         except Exception as e:
@@ -61,7 +85,8 @@ class JsonOutputNode(FlowItem):
             output = {k: None for k in self.output_variables}
         
         if self.return_inputs:
-            return output.update(self.input_variables)
+            output.update(inp)
+            return output
         
         return output
 
@@ -74,13 +99,14 @@ class JsonOutputNode(FlowItem):
         output_model = self._get_output_model()
         parser.pydantic_object = output_model
         return parser
-    
 
-class StrOutputNode(FlowItem):
+
+class StrOutputNode(Node):
     def __init__(self, model_name,
                  prompt_template: str, 
                  input_variables:List[str], 
-                 output_variable: str,
+                 output_variables: str,
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
                  temperature: float = 0.1,
                  max_tokens: int = 400,
                  verbose: bool = False,
@@ -92,11 +118,7 @@ class StrOutputNode(FlowItem):
         input_variables: a list of input variable names
         output_variable: a string that is the name of the output string
         """
-        self.template = prompt_template
-        self.input_variables: List[str] = input_variables
-        self.output_variable: str = output_variable
-        self.return_inputs = return_inputs
-        self.is_output = is_output
+        super().__init__(model_name, prompt_template, input_variables, output_variables, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
 
         self.parser = self._get_output_parser()
 
@@ -112,10 +134,10 @@ class StrOutputNode(FlowItem):
     def run(self, inp: Dict):
         # TODO run the prompt and generate output
         try:
-            output = {self.output_variable: self.chain.invoke(input=inp).content}
+            output = {self.output_variables: self.chain.invoke(input=inp).content}
         except Exception as e:
             print(e)
-            output = {self.output_variable: None}
+            output = {self.output_variables: None}
         if self.return_inputs:
             return output.update(self.input_variables)
         return output
@@ -123,59 +145,60 @@ class StrOutputNode(FlowItem):
     def _get_output_parser(self) -> StrOutputParser:
         return StrOutputParser
 
+
 class RetrievalJsonOutputNode(JsonOutputNode):
     def __init__(self, model_name, 
                  prompt_template: str, 
                  input_variables: List[str], 
-                 output_variables: Dict[str, type], 
+                 output_variables: Dict[str, type],
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]], 
                  temperature: float = 0.1, 
                  max_tokens: int = 400, 
                  verbose: bool = False, 
                  return_inputs: bool = False,
                  is_output: bool = False) -> None:
-        super().__init__(model_name, prompt_template, input_variables, output_variables, temperature, max_tokens, verbose, return_inputs, is_output)
+        super().__init__(model_name, prompt_template, input_variables, output_variables, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
+        # TODO
+
 
 class RetrievalStrOutputNode(StrOutputNode):
     def __init__(self, model_name, 
                  prompt_template: str, 
                  input_variables: List[str], 
-                 output_variable: str, 
+                 output_variables: str,
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
                  temperature: float = 0.1, 
                  max_tokens: int = 400, 
                  verbose: bool = False, 
                  return_inputs: bool = False,
                  is_output: bool = False) -> None:
-        super().__init__(model_name, prompt_template, input_variables, output_variable, temperature, max_tokens, verbose, return_inputs, is_output)
+        super().__init__(model_name, prompt_template, input_variables, output_variables, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
+        # TODO
 
-# class DecisionNode(JsonOutputNode):
-#     def __init__(self, id,  prompt, input_variables, output_variables) -> None:
-#         super().__init__(id)
+
+class NodeFactory:
+    @staticmethod
+    def create_node(model_name, 
+                    prompt_template: str, 
+                    input_variables: List[str], 
+                    output_variables: Union[Dict[str, type], str],
+                    next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
+                    temperature: float = 0.1, 
+                    max_tokens: int = 400, 
+                    verbose: bool = False, 
+                    return_inputs: bool = False,
+                    is_output: bool = False) -> Node:
+        if isinstance(output_variables, str):
+            return StrOutputNode(model_name, prompt_template, 
+                                 input_variables, output_variables, next_item,
+                                 temperature, max_tokens, verbose, 
+                                 return_inputs, is_output)
+        elif isinstance(output_variables, Dict):
+            return JsonOutputNode(model_name, prompt_template, 
+                                 input_variables, output_variables, next_item,
+                                 temperature, max_tokens, verbose, 
+                                 return_inputs, is_output)
+        else:
+            raise ValueError("invalid output variables type!")
         
-#     def next_node(self):
-#         # TODO run the prompt to select one of the output ids
-#         output_id = ""
-#         return output_id
-    
-#     def output(self, inp: Dict):
-#         return inp
-    
 
-
-
-
-
-# def node_factory(json_node):
-#     """
-#     returns a node
-#     """
-#     prompt = json_node["prompt"]
-#     input_variables = json_node["input_variables"]
-#     output_variables = json_node["output_variables"]
-#     next_nodes = json_node["next_nodes"]
-#     output_node_ids = json_node[""]
-#     if json_node['is_decision']:
-#         # make a decision node TODO
-#         pass
-#     else:
-#         # make a normal node TODO
-#         pass
