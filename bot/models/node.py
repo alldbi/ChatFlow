@@ -9,7 +9,10 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.utilities import SQLDatabase
+from langchain.chains import create_sql_query_chain
 
+import sqlite3
 from pydantic import BaseModel
 from pydantic import create_model
 
@@ -302,6 +305,59 @@ class RetrievalNode(Node):
         return self.node.run(inp)
 
 
+class SQLRetrievalNode(Node):
+    def __init__(self, model_name,
+                 prompt_template: str,
+                 input_variables: List[str],
+                 output_variables: Union[str, Dict[str, type]],
+                 db_path: str,
+                 result: str = 'result',
+                 query_var: str = 'user_message',
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
+                 temperature: float = 0.0,
+                 max_tokens: int = 400,
+                 verbose: bool = False,
+                 return_inputs: bool = False,
+                 is_output: bool = False
+                 ) -> None:
+        super().__init__(model_name, prompt_template, input_variables,
+                         output_variables, next_item, temperature,
+                         max_tokens, verbose, return_inputs, is_output)
+        self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(model_name,
+                                                                                  prompt_template,
+                                                                                  input_variables, output_variables,
+                                                                                  next_item, temperature, max_tokens,
+                                                                                  verbose, return_inputs, is_output)
+        # TODO
+        self.embeddings = OpenAIEmbeddings()
+        self.db_path = db_path
+        self.db = None
+        self.conn = None
+        self._connect_to_db()
+        self.result = result
+        self.query_var = query_var
+        self.current_query = None
+
+    def _connect_to_db(self):
+        try:
+            self.db = SQLDatabase.from_uri(f"sqlite:///{self.db_path}")
+            self.conn = sqlite3.connect(self.db_path)
+        except Exception as e:
+            print(f"An error occurred while connecting to the database. Error: {e}")
+
+    def run(self, inp: Dict):
+        if self.db is None or self.conn is None:
+            return {}
+        llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+        chain = create_sql_query_chain(llm, self.db)
+        query = chain.invoke({"question": inp[self.query_var]})
+        conn = sqlite3.connect('testDB.db')
+        c = conn.cursor()
+        c.execute(query)
+        inp[self.result] = c.fetchall()
+        return self.node.run(inp)
+
+
 class NodeFactory:
     @staticmethod
     def create_node(model_name, 
@@ -349,5 +405,22 @@ class NodeFactory:
                              docs_dir, context_var, query_var, k_result, 
                              next_item, temperature, max_tokens, verbose, 
                              return_inputs, is_output)
+
+    @staticmethod
+    def create_sql_node(model_name,
+                         prompt_template: str,
+                         input_variables: List[str],
+                         output_variables: Union[str, Dict[str, type]],
+                         db_path: str,
+                         result: str = 'result',
+                         query_var: str = 'user_message',
+                         next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
+                         temperature: float = 0.0,
+                         max_tokens: int = 400,
+                         verbose: bool = False,
+                         return_inputs: bool = False,
+                         is_output: bool = False):
+        return SQLRetrievalNode(model_name, prompt_template, input_variables, output_variables, db_path,
+                                result, query_var, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
         
 

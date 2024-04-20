@@ -2,7 +2,6 @@
 import sys
 
 sys.path.insert(0, r'D:\UNI\Dpna\Projects\Chat Flow\initial code\ChatFlow')
-from bot.models.node import RetrievalNode
 from bot.models.node import NodeFactory
 from bot.models.condition import Condition, Operator
 from bot.models.flow import Flow
@@ -15,7 +14,7 @@ model_name = 'gpt-4-turbo-preview'
 if __name__ == "__main__":
     decision_prompt = """Categorize the user message into one of the following categories:
         1. Scholarly
-        4. chitchat
+        2. chitchat
 
         << USER MESSAGE >>
         {user_message}
@@ -77,13 +76,19 @@ if __name__ == "__main__":
     print(res)
     print(20*"@")
 
-    inp = {'user_message': "When was the paper published?"}
+    inp = {'user_message': "Who are the authors of the paper?"}
     res = flow_bot.run(inp)
     print(inp)
     print(res)
     print(20*"@")
 
     inp = {'user_message': "In less than 40 words, give a summary about the abstract of the paper?"}
+    res = flow_bot.run(inp)
+    print(inp)
+    print(res)
+    print(20*"@")
+
+    inp = {'user_message': "In less than 40 words, give a summary about the result and conclusion of the paper?"}
     res = flow_bot.run(inp)
     print(inp)
     print(res)
