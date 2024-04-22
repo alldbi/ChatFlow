@@ -1,6 +1,6 @@
-# Example 2: FlowChat Framework for a Retrieval Chatbot
+# Example 2: ChatFlow Framework for a Retrieval Chatbot
 
-In this example, we utilize the FlowChat framework to develop a chatbot capable of interacting with users and answering their questions about a specific PDF file.
+In this example, we utilize the ChatFlow framework to develop a chatbot capable of interacting with users and answering their questions about a specific PDF file.
 
 ## Scenario
 

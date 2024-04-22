@@ -1,6 +1,6 @@
-# Example 1: FlowChat Framework for a Simple Chatbot
+# Example 1: ChatFlow Framework for a Simple Chatbot
 
-This example demonstrates the usage of the FlowChat framework for creating a simple chatbot.
+This example demonstrates the usage of the ChatFlow framework for creating a simple chatbot.
 
 ## Scenario
 
