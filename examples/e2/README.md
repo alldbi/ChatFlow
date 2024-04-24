@@ -8,40 +8,6 @@ The user provides a PDF file and poses questions about its content. Our chatbot 
 
 ## How to Use
 
-Initially, we must specify the path of the PDF file and the location where we intend to store the embedding database of the PDF.
-
-```python
-persist_directory = os.path.join(os.getcwd(), "data")
-docs_dir = os.path.join(os.getcwd(), "Candidate Set Sampling for Evaluating Top-N Recommendation.pdf")
-```
-
-Following this, we create a retrieval node. This node generates a vector database that contains the embeddings of the PDF. It’s important to note that if you wish to add a decision node before the retrieval node, as we do in this example, the prompt input and query variable must be named ‘user_message’.
-
-```python
-retieval_prompt_template = """Answer the following question based on the provided context. Avoid using your own knowledge and adhere to the provided data.
-    
-    << query >> 
-    {user_message}
-    
-    << context >>
-    {context}
-    """
-persist_directory = os.path.join(os.getcwd(), "data")
-    docs_dir = os.path.join(os.getcwd(), "Candidate Set Sampling for Evaluating Top-N Recommendation.pdf")
-    retrieval_node = NodeFactory.create_retrieval(model_name=model_name,
-                                        prompt_template=retieval_prompt_template,
-                                        input_variables=['user_message'],
-                                        output_variables='response',
-                                        persist_directory=persist_directory,
-                                        collection_name='test-retrieval',
-                                        docs_dir=docs_dir,
-                                        context_var='context',
-                                        query_var='user_message',
-                                        k_result=4,
-                                        return_inputs=True,
-                                        is_output=True)
-```
-
 Given that our chatbot operates in two phases, we need to add a decision node to determine whether the user’s input is general chitchat or related to our PDF.
 
 ```python
@@ -76,6 +42,40 @@ chitchat_node = NodeFactory.create_node(model_name=model_name, prompt_template=c
                                         output_variables='response',
                                         is_output=True)
 ```
+For retrieval node, we must specify the path of the PDF file and the location where we intend to store the embedding database of the PDF.
+
+```python
+persist_directory = os.path.join(os.getcwd(), "data")
+docs_dir = os.path.join(os.getcwd(), "Candidate Set Sampling for Evaluating Top-N Recommendation.pdf")
+```
+
+Following this, we create a retrieval node. This node generates a vector database that contains the embeddings of the PDF. It’s important to note that Since the user input is named `user_message` in the start_node, the prompt input and query variable for the subsequent nodes should also be named `user_message` for consistency.
+
+```python
+retieval_prompt_template = """Answer the following question based on the provided context. Avoid using your own knowledge and adhere to the provided data.
+    
+    << query >> 
+    {user_message}
+    
+    << context >>
+    {context}
+    """
+persist_directory = os.path.join(os.getcwd(), "data")
+    docs_dir = os.path.join(os.getcwd(), "Candidate Set Sampling for Evaluating Top-N Recommendation.pdf")
+    retrieval_node = NodeFactory.create_retrieval(model_name=model_name,
+                                        prompt_template=retieval_prompt_template,
+                                        input_variables=['user_message'],
+                                        output_variables='response',
+                                        persist_directory=persist_directory,
+                                        collection_name='test-retrieval',
+                                        docs_dir=docs_dir,
+                                        context_var='context',
+                                        query_var='user_message',
+                                        k_result=4,
+                                        return_inputs=True,
+                                        is_output=True)
+```
+
 
 Now we have to define the chain of workflow of the chatbot. We are going to define that after deciding which category the user's message was, pass the message to the corresponding sub-chatbot.
 

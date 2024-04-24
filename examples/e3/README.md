@@ -33,7 +33,8 @@ start_node = NodeFactory.create_node(model_name=model_name, prompt_template=deci
 
 ```
 
-Next, create the retrieval node, chitchat node, and the SQL retriever node. Please note that for these nodes, the user query and input variable should be set to `user_message`.
+Next, create the retrieval node, chitchat node, and the SQL retriever node. Please note that for these nodes, the user query and input variable should be set to `user_message` since, initially, we had set the user message in `node_start` to be `user_message`.
+The SQL retriever node only returns the records or the result of aggregate functions (such as average, sum, count, etc.). To provide a proper response to the user, you need to add another string output node to format and present the retrieved information.
 
 ```python
 chitchat_prompt = """..."""
@@ -65,7 +66,14 @@ retrieval_node = NodeFactory.create_retrieval(model_name=model_name,
                                               return_inputs=True,
                                               is_output=True)
 
-sql_prompt_template = """Answer the following question based on the result, retrieved from the database. Avoid using your own knowledge and adhere to the provided data.
+db_path = "testDB.db"
+node_sql_retrieval = NodeFactory.create_sql_node(model_name=model_name,
+                                              input_variables=['user_message'],
+                                              output_variables='response',
+                                              db_path=db_path,
+                                              result='result',
+                                              return_inputs=True)
+prompt_sql_qa = """Answer the following question based on the result, retrieved from the database. Avoid using your own knowledge and adhere to the provided data.
 
 << query >> 
 {user_message}
@@ -73,18 +81,14 @@ sql_prompt_template = """Answer the following question based on the result, retr
 << result >>
 {result}
 """
-db_path = "testDB.db"
-sql_node = NodeFactory.create_sql_node(model_name=model_name,
-                                              prompt_template=sql_prompt_template,
-                                              input_variables=['user_message'],
-                                              output_variables='response',
-                                              db_path=db_path,
-                                              result='result',
-                                              return_inputs=True,
-                                              is_output=True)
+
+node_sql_qa = NodeFactory.create_node(model_name=model_name, prompt_template=prompt_sql_qa,
+                                        input_variables=['user_message', 'result'],
+                                        output_variables='response',
+                                        is_output=True)
 ```
 
-Now, define the workflow chain of the chatbot by connecting the conditions to their corresponding nodes.
+Now, define the workflow chain of the chatbot by connecting the appropriate conditions to their corresponding nodes. Additionally, connect the SQL retriever node to the string output node that we created earlier.
 
 ```python
 start_node.set_next_item({retrieval_node: Condition('ServicePolicy', True, Operator.EQUALS),
@@ -116,7 +120,6 @@ print(inp)
 print(res)
 print(20 * "@")
 ```
-
 
 ## Workflow Diagram
 ![Image Alt Text](./assets/diagram.PNG)

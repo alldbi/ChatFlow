@@ -307,11 +307,11 @@ class RetrievalNode(Node):
 
 class SQLRetrievalNode(Node):
     def __init__(self, model_name,
-                 prompt_template: str,
                  input_variables: List[str],
                  output_variables: Union[str, Dict[str, type]],
                  db_path: str,
-                 result: str = 'result',
+                 prompt_template: str = '',
+                 result_var: str = 'result',
                  query_var: str = 'user_message',
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
                  temperature: float = 0.0,
@@ -329,12 +329,11 @@ class SQLRetrievalNode(Node):
                                                                                   next_item, temperature, max_tokens,
                                                                                   verbose, return_inputs, is_output)
         # TODO
-        self.embeddings = OpenAIEmbeddings()
         self.db_path = db_path
         self.db = None
         self.conn = None
         self._connect_to_db()
-        self.result = result
+        self.result_var = result_var
         self.query_var = query_var
         self.current_query = None
 
@@ -351,11 +350,11 @@ class SQLRetrievalNode(Node):
         llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
         chain = create_sql_query_chain(llm, self.db)
         query = chain.invoke({"question": inp[self.query_var]})
-        conn = sqlite3.connect('testDB.db')
-        c = conn.cursor()
+        c = self.conn.cursor()
         c.execute(query)
-        inp[self.result] = c.fetchall()
-        return self.node.run(inp)
+        inp[self.result_var] = c.fetchall()
+        # return self.node.run(inp)
+        return inp
 
 
 class NodeFactory:
@@ -408,10 +407,10 @@ class NodeFactory:
 
     @staticmethod
     def create_sql_node(model_name,
-                         prompt_template: str,
                          input_variables: List[str],
                          output_variables: Union[str, Dict[str, type]],
                          db_path: str,
+                         prompt_template: str = "",
                          result: str = 'result',
                          query_var: str = 'user_message',
                          next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
@@ -420,7 +419,5 @@ class NodeFactory:
                          verbose: bool = False,
                          return_inputs: bool = False,
                          is_output: bool = False):
-        return SQLRetrievalNode(model_name, prompt_template, input_variables, output_variables, db_path,
-                                result, query_var, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
-        
-
+        return SQLRetrievalNode(model_name, input_variables, output_variables, db_path, prompt_template, result,
+                                query_var, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
