@@ -6,7 +6,7 @@ from bot.models.node import NodeFactory
 from bot.models.flow import Flow
 import os
 
-os.environ['OPENAI_API_KEY'] = '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'
+os.environ['OPENAI_API_KEY'] = 'sk-...'
 
 model_name = 'gpt-4-turbo-preview'
 
