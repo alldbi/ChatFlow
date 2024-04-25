@@ -18,4 +18,4 @@ Engage in English conversations with the chatbot. Practice writing in natural la
 
 
 ## Workflow Diagram
-![Image Alt Text](./assets/WorkFlow.png)
+![Image Alt Text](./assets/workflow.png)
