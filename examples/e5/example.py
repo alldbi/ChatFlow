@@ -15,13 +15,15 @@ if __name__ == "__main__":
     
     decision_prompt = """
     English Chat: Users engage in conversational practice for better communication.
-    Vocabulary: Users may request guidance on learning new words.
-    Grammar: Users may seek a grammatical rule or structure.
+    Vocabulary: Users may request guidance on learning new words. 
+    Grammar: Users may seek a grammatical rule or structure. 
+    Story: User may ask bot to tell a short english story.
     
     Categorize the user message into one of the following categories:
         1. vocabulary
         2. grammar
         3. englishchat
+        4. story
 
         << USER MESSAGE >>
         {user_message}
@@ -37,7 +39,8 @@ if __name__ == "__main__":
                                          input_variables=['user_message'],
                                          output_variables={'vocabulary': bool,
                                                            'grammar': bool,
-                                                           'englishchat': bool},
+                                                           'englishchat': bool,
+                                                           'story': bool},
                                          return_inputs=True)
 
 
@@ -59,6 +62,18 @@ if __name__ == "__main__":
 
     << BOT RESPONSE >>
     '''
+
+    story_prompt = """You are a warm and welcoming chatbot. 
+    Tell users a creative English story. It should be fun and interesting.
+    << USER MESSAGE >>
+    {user_message}
+
+    BOT RESPONSE:"""
+    
+    story_node = NodeFactory.create_node(model_name=model_name, prompt_template=story_prompt,
+                                            input_variables=['user_message'],
+                                            output_variables='response',
+                                            is_output=True)
 
     englishchat_node = NodeFactory.create_node(model_name=model_name, prompt_template=englishchat_prompt,
                                             input_variables=['user_message'],
@@ -126,7 +141,8 @@ if __name__ == "__main__":
 
     start_node.set_next_item({retrieval_node: Condition('vocabulary', True, Operator.EQUALS),
                               retrieval_node2: Condition('grammar', True, Operator.EQUALS),
-                              englishchat_node: Condition('englishchat', True, Operator.EQUALS)})
+                              englishchat_node: Condition('englishchat', True, Operator.EQUALS),
+                              story_node: Condition('story', True, Operator.EQUALS)})
 
     flow_bot = Flow(start_node=start_node)
    

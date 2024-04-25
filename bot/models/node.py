@@ -47,6 +47,36 @@ class Node(FlowItem):
     def get_next_item(self):
         return self.next
 
+class Creative_Node(FlowItem):
+
+# Only temperature was increased
+
+    def __init__(self, model_name,
+                 prompt_template: str, 
+                 input_variables:List[str], 
+                 output_variables: Union[Dict[str, type], str],
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
+                 temperature: float = 0.9,
+                 max_tokens: int = 400,
+                 verbose: bool = False,
+                 return_inputs: bool = False,
+                 is_output: bool = False) -> None:
+        self.template = prompt_template
+        self.input_variables: List[str] = input_variables
+        self.output_variables: str = output_variables
+        self.next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]] = next_item
+        self.model_name = model_name
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.return_inputs = return_inputs
+        self.is_output = is_output
+        self.verbose = verbose
+
+    def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]])-> None:
+        self.next = next
+    
+    def get_next_item(self):
+        return self.next
 
 class JsonOutputNode(Node):
     def __init__(self, model_name,
