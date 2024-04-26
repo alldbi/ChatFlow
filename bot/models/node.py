@@ -15,12 +15,17 @@ from pydantic import create_model
 
 from .flow_item import FlowItem
 from .condition import Condition
+from .state import State
+from .memory import Memory
+from ..prompts.state_prompts import state_updater_prompt
 
 class Node(FlowItem):
     def __init__(self, model_name,
                  prompt_template: str, 
                  input_variables:List[str], 
                  output_variables: Union[Dict[str, type], str],
+                 history_key: str = 'history',
+                 history_variables: Union[List[str], None] = None,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
                  temperature: float = 0.1,
                  max_tokens: int = 400,
@@ -30,6 +35,8 @@ class Node(FlowItem):
         self.template = prompt_template
         self.input_variables: List[str] = input_variables
         self.output_variables: str = output_variables
+        self.history_key = history_key
+        self.history_variables = history_variables
         self.next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]] = next_item
         self.model_name = model_name
         self.temperature = temperature
@@ -50,6 +57,8 @@ class JsonOutputNode(Node):
                  prompt_template: str, 
                  input_variables:List[str], 
                  output_variables: Dict[str, type],
+                 history_key: str = 'history',
+                 history_variables: Union[List[str], None] = None,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
                  temperature: float = 0.1,
                  max_tokens: int = 400,
@@ -63,7 +72,15 @@ class JsonOutputNode(Node):
         output_variables: a dictionary with variable names keys and variable types values
                 {'a':int, 'b':str}
         """
-        super().__init__(model_name, prompt_template, input_variables, output_variables, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
+        super().__init__(model_name=model_name, 
+                         prompt_template=prompt_template, 
+                         input_variables=input_variables, 
+                         output_variables=output_variables, 
+                         history_key=history_key,
+                         history_variables=history_variables,
+                         next_item=next_item, 
+                         temperature=temperature, 
+                         max_tokens=max_tokens, verbose=verbose, return_inputs=return_inputs, is_output=is_output)
 
         self.parser = self._get_output_parser()
 
@@ -83,7 +100,11 @@ class JsonOutputNode(Node):
         self.chain = self.prompt | self.model
     
     
-    def run(self, inp: Dict):
+    def run(self, inp: Dict, memory: Union[Memory, None]=None):
+        if memory is not None:
+            # TODO add a method to read the related parts of the history and save them in its associated node. 
+            # TODO debug and change the logic of getting input and returning it as output
+            inp[self.history_key] = memory.get_history_str(self.history_variables)
         try:
             output = self.chain.invoke(input=inp)['parsed']
         except Exception as e:
@@ -93,6 +114,10 @@ class JsonOutputNode(Node):
         if self.return_inputs:
             output.update(inp)
             return output
+        
+        if memory is not None:
+            # TODO save output in memory if needed
+            pass
         
         return output
 
@@ -112,6 +137,8 @@ class StrOutputNode(Node):
                  prompt_template: str, 
                  input_variables:List[str], 
                  output_variables: str,
+                 history_key: str = 'history',
+                 history_variables: Union[List[str], None] = None,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
                  temperature: float = 0.1,
                  max_tokens: int = 400,
@@ -124,7 +151,15 @@ class StrOutputNode(Node):
         input_variables: a list of input variable names
         output_variable: a string that is the name of the output string
         """
-        super().__init__(model_name, prompt_template, input_variables, output_variables, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
+        super().__init__(model_name=model_name, 
+                         prompt_template=prompt_template, 
+                         input_variables=input_variables, 
+                         output_variables=output_variables, 
+                         history_key=history_key,
+                         history_variables=history_variables,
+                         next_item=next_item, 
+                         temperature=temperature, 
+                         max_tokens=max_tokens, verbose=verbose, return_inputs=return_inputs, is_output=is_output)
 
         self.parser = self._get_output_parser()
 
@@ -137,8 +172,11 @@ class StrOutputNode(Node):
         self.chain = self.prompt | self.model
         
     
-    def run(self, inp: Dict):
-        # TODO run the prompt and generate output
+    def run(self, inp: Dict, memory: Union[Memory, None]=None):
+        if memory is not None:
+            # TODO add a method to read the related parts of the history and save them in its associated node. 
+            # TODO debug and change the logic of getting input and returning it as output
+            inp[self.history_key] = memory.get_history_str(self.history_variables)
         try:
             output = {self.output_variables: self.chain.invoke(input=inp).content}
         except Exception as e:
@@ -146,89 +184,15 @@ class StrOutputNode(Node):
             output = {self.output_variables: None}
         if self.return_inputs:
             output.update(inp)
+        
+        if memory is not None:
+            # TODO save output in memory if needed
+            pass
+
         return output
     
     def _get_output_parser(self) -> StrOutputParser:
         return StrOutputParser
-
-
-class RetrievalJsonOutputNode(JsonOutputNode):
-    def __init__(self, model_name, 
-                 prompt_template: str, 
-                 input_variables: List[str], 
-                 output_variables: Dict[str, type],
-                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]], 
-                 temperature: float = 0.1, 
-                 max_tokens: int = 400, 
-                 verbose: bool = False, 
-                 return_inputs: bool = False,
-                 is_output: bool = False) -> None:
-        super().__init__(model_name, prompt_template, input_variables, output_variables, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
-        # TODO
-
-
-class RetrievalStrOutputNode(StrOutputNode):
-    def __init__(self, model_name, 
-                 prompt_template: str, 
-                 input_variables: List[str], 
-                 output_variables: str,
-                 persist_directory: str,
-                 collection_name: str,
-                 docs_dir: str,
-                 context_var: str = 'context',
-                 query_var: str = 'query',
-                 k_result: int = 1,
-                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
-                 temperature: float = 0.1, 
-                 max_tokens: int = 400, 
-                 verbose: bool = False, 
-                 return_inputs: bool = False,
-                 is_output: bool = False
-                 ) -> None:
-        super().__init__(model_name, prompt_template, input_variables, output_variables, next_item, temperature, max_tokens, verbose, return_inputs, is_output)
-        # TODO
-        self.embeddings = OpenAIEmbeddings()
-        self.persist_directory = persist_directory
-        self.collection_name = collection_name
-        self.docs_dir = docs_dir
-        self._init_v_store()
-        self.context_var = context_var
-        self.query_var = query_var
-        self.k = k_result
-
-    def _init_v_store(self):
-        if self._is_initiated_before():
-            self.vector_db = Chroma(collection_name=self.collection_name, 
-                                    persist_directory=self.persist_directory, 
-                                    embedding_function=self.embeddings)
-        else:
-            # create the vector db and add embeddings
-            loader = PyPDFLoader(self.docs_dir)
-            loaded_document = loader.load()
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000,
-                                                           chunk_overlap=10,
-                                                           length_function=len,
-                                                           is_separator_regex=False)
-            documents = text_splitter.split_documents(loaded_document)
-
-            # TODO enable other embedding types
-            self.vector_db = Chroma.from_documents(documents=documents,
-                                              embedding=self.embeddings, 
-                                              persist_directory=self.persist_directory, 
-                                              collection_name=self.collection_name)
-
-    def _is_initiated_before(self):
-        # TODO a better checking method
-        db_file_path = os.path.join(self.persist_directory,"chroma.sqlite3")
-        return os.path.exists(db_file_path)
-    
-    def run(self, inp: Dict):
-        # TODO the pdf loader or the similarity search doesn't work properly and I dont get any results
-        retriever = self.vector_db.as_retriever()
-        retrieved_docs = retriever.get_relevant_documents(query=inp[self.query_var], k=self.k)
-        # retrieved_docs = self.vector_db.similarity_search(query=inp[self.query_var], k=self.k)
-        inp[self.context_var] = '\n'.join(d.page_content for d in retrieved_docs)
-        return super().run(inp)
 
 
 class RetrievalNode(Node):
@@ -249,9 +213,13 @@ class RetrievalNode(Node):
                  return_inputs: bool = False,
                  is_output: bool = False
                  ) -> None:        
-        super().__init__(model_name, prompt_template, input_variables, 
-                         output_variables, next_item, temperature, 
-                         max_tokens, verbose, return_inputs, is_output)
+        super().__init__(model_name=model_name, 
+                         prompt_template=prompt_template, 
+                         input_variables=input_variables, 
+                         output_variables=output_variables, 
+                         next_item=next_item, 
+                         temperature=temperature, 
+                         max_tokens=max_tokens, verbose=verbose, return_inputs=return_inputs, is_output=is_output)
         self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(model_name, 
                                                                                   prompt_template, 
                                                                                   input_variables, output_variables, 
@@ -293,7 +261,7 @@ class RetrievalNode(Node):
         db_file_path = os.path.join(self.persist_directory,"chroma.sqlite3")
         return os.path.exists(db_file_path)
     
-    def run(self, inp: Dict):
+    def run(self, inp: Dict, memory: Union[Memory, None]=None):
         # TODO the pdf loader or the similarity search doesn't work properly and I dont get any results
         retriever = self.vector_db.as_retriever()
         retrieved_docs = retriever.get_relevant_documents(query=inp[self.query_var], k=self.k)
@@ -301,6 +269,48 @@ class RetrievalNode(Node):
         inp[self.context_var] = '\n'.join(d.page_content for d in retrieved_docs)
         return self.node.run(inp)
 
+class StateUpdater(FlowItem):
+    def __init__(self, model_name, 
+                 initial_state: State, 
+                 states: List[State] = None, 
+                 temperature: float = 0.1, max_tokens: int = 400, 
+                 verbose: bool = False, return_inputs: bool = False, 
+                 is_output: bool = False) -> None:
+        self.model_name = model_name
+        self.current_state: State = initial_state
+        self.states: List[State] = states
+        self._init_vars()
+        self.node_runner = JsonOutputNode(self.model_name, self.prompt_template, 
+                                          self.input_variables, self.output_variables, 
+                                          temperature=temperature, max_tokens=max_tokens, verbose=verbose, 
+                                          return_inputs=return_inputs, is_output=is_output)
+        
+    def _init_vars(self):
+        prompt = state_updater_prompt()
+        self.input_variables = ['history', 'current_state']
+        output_variables = {}
+        name_to_state = {}
+        for state in self.states:
+            prompt += str(state)
+            output_variables[state.name] = bool
+            name_to_state[state.name] = state
+        
+        prompt += """
+return a json object, with the name of all states, set current state to true and al of the other states to false."""
+        self.prompt_template = prompt
+        self.output_variables = output_variables
+        self.name_to_state = name_to_state
+
+
+    def update_state(self, history):
+        inp = {'history': history, 'current_state':self.current_state.name}
+        # TODO may be run is better than this name?
+        decision_result = self.node_runner.run(inp)
+        for st_name, v in decision_result.items():
+            if v:
+                self.current_state = self.name_to_state[st_name]
+                break
+    
 
 class NodeFactory:
     @staticmethod
@@ -308,6 +318,8 @@ class NodeFactory:
                     prompt_template: str, 
                     input_variables: List[str], 
                     output_variables: Union[Dict[str, type], str],
+                    history_key: str = 'history',
+                    history_variables: Union[List[str], None] = None,
                     next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
                     temperature: float = 0.1, 
                     max_tokens: int = 400, 
@@ -316,12 +328,12 @@ class NodeFactory:
                     is_output: bool = False) -> Node:
         if isinstance(output_variables, str):
             return StrOutputNode(model_name, prompt_template, 
-                                 input_variables, output_variables, next_item,
+                                 input_variables, output_variables, history_key, history_variables, next_item,
                                  temperature, max_tokens, verbose, 
                                  return_inputs, is_output)
         elif isinstance(output_variables, Dict):
             return JsonOutputNode(model_name, prompt_template, 
-                                 input_variables, output_variables, next_item,
+                                 input_variables, output_variables, history_key, history_variables, next_item,
                                  temperature, max_tokens, verbose, 
                                  return_inputs, is_output)
         else:
@@ -338,6 +350,8 @@ class NodeFactory:
                  context_var: str = 'context',
                  query_var: str = 'query',
                  k_result: int = 1,
+                 history_key: str = 'history',
+                 history_variables: Union[List[str], None] = None,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
                  temperature: float = 0.1, 
                  max_tokens: int = 400, 
@@ -346,7 +360,7 @@ class NodeFactory:
                  is_output: bool = False):
         return RetrievalNode(model_name, prompt_template, input_variables, 
                              output_variables, persist_directory, collection_name,
-                             docs_dir, context_var, query_var, k_result, 
+                             docs_dir, context_var, query_var, k_result, history_key,history_variables,
                              next_item, temperature, max_tokens, verbose, 
                              return_inputs, is_output)
         
