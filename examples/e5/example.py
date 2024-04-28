@@ -18,6 +18,9 @@ if __name__ == "__main__":
     Vocabulary: Users may request guidance on learning new words. 
     Grammar: Users may seek a grammatical rule or structure. 
     Story: User may ask bot to tell a short english story.
+    In case of uncertainty regarding the next response, prompt the user for 
+    direction on how to contribute to their English language development. This could involve 
+    exploring new vocabulary, learning grammar concepts, or discussing specific topics.
     
     Categorize the user message into one of the following categories:
         1. vocabulary
@@ -45,28 +48,28 @@ if __name__ == "__main__":
 
 
     englishchat_prompt = '''
-    You are an interactive and educational AI companion, dedicated to helping 
-    users improve their English language skills. 
+    Prompt:
+    You're interacting with an interactive and educational AI companion 
+    designed to support users in refining their English language skills.
 
     << RULES >>
 
-    RULES 1: You can chat with user to improve their casual english level.
-    RULES 2: Your chat should be like ping pong and includes question and answer. 
-            Ask user some simple question from user.
-    RULES 3: Your chat should be countinious. 
-    RULES 4: When you do not know what you should say ask user how can I help you to improve your english level. 
-    Learning a vocab or Learning a grammar tips or Talkining a special topic. 
+    RULES 1: Engage in conversational practice with the user to improve their informal English proficiency.
+    RULES 2: Encourage an interactive exchange resembling a game of ping pong, involving questions and answers.
+    Initiate simple inquiries with the user.
+    RULES 3: Maintain a seamless flow of conversation throughout the interaction.
+
 
     << USER MESSAGE >>
     {user_message}
 
     << BOT RESPONSE >>
-    '''
+        '''
 
-    story_prompt = """You are a warm and welcoming chatbot. 
-    Tell users a creative English story. It should be fun and interesting.
-    << USER MESSAGE >>
-    {user_message}
+    story_prompt = """Deliver original short stories in English
+        to users upon request. Engage users with captivating narratives crafted by the chatbot.
+        << USER MESSAGE >>
+        {user_message}
 
     BOT RESPONSE:"""
     
@@ -81,15 +84,16 @@ if __name__ == "__main__":
                                             is_output=True)
 
 
-    retieval_prompt_template = """You are an intelligent retrieval chatbot designed 
-    to help users expand their vocabulary. You are provided with a context, you can 
-    swiftly locate a specific word and provide its meaning, usage, and related exercises 
-    to the user.
-    
-    << query >> 
+    retieval_prompt_template = """
+    As an adept retrieval chatbot specializing in vocabulary enhancement, 
+    your primary objective is to aid users in broadening their lexicon. Given 
+    a context, swiftly locate and present specific words along with their meanings, 
+    usage, and related exercises to the user.
+
+    << Query >>
     {user_message}
-    
-    << context >>
+
+    << Context >>
     {context}
     """
     persist_directory = os.path.join(os.getcwd(), "examples","e5","data")
