@@ -9,7 +9,10 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.utilities import SQLDatabase
+from langchain.chains import create_sql_query_chain
 
+import sqlite3
 from pydantic import BaseModel
 from pydantic import create_model
 
@@ -48,6 +51,36 @@ class Node(FlowItem):
     def initialize(self, **kwargs):
         raise NotImplementedError("This method must be implemented before access!")
 
+class Creative_Node(FlowItem):
+
+# Only temperature was increased
+
+    def __init__(self, model_name,
+                 prompt_template: str, 
+                 input_variables:List[str], 
+                 output_variables: Union[Dict[str, type], str],
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
+                 temperature: float = 0.9,
+                 max_tokens: int = 400,
+                 verbose: bool = False,
+                 return_inputs: bool = False,
+                 is_output: bool = False) -> None:
+        self.template = prompt_template
+        self.input_variables: List[str] = input_variables
+        self.output_variables: str = output_variables
+        self.next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]] = next_item
+        self.model_name = model_name
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        self.return_inputs = return_inputs
+        self.is_output = is_output
+        self.verbose = verbose
+
+    def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]])-> None:
+        self.next = next
+    
+    def get_next_item(self):
+        return self.next
 
 class JsonOutputNode(Node):
     def __init__(self, prompt_template: str, 
@@ -297,6 +330,53 @@ return a json object, with the name of all states, set current state to true and
                 break
     
 
+class SQLRetrievalNode(Node):
+    def __init__(self, input_variables: List[str],
+                 output_variables: Union[str, Dict[str, type]],
+                 db_path: str,
+                 prompt_template: str = '',
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
+                 **kwargs: Any
+                 ) -> None:
+        super().__init__(prompt_template, input_variables,
+                         output_variables, next_item, **kwargs)
+        self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(prompt_template=prompt_template, 
+                         input_variables=input_variables, 
+                         output_variables=output_variables, 
+                         next_item=next_item, 
+                         **kwargs)
+        # TODO
+        self.db_path = db_path
+        self.db = None
+        self.conn = None
+        self._connect_to_db()
+        self.result_var = kwargs.get('result_var', 'result')
+        self.query_var = kwargs.get('query_var', 'user_message')
+        self.current_query = None
+        
+    def initialize(self, **kwargs):
+        self.node.initialize(**kwargs)
+
+    def _connect_to_db(self):
+        try:
+            self.db = SQLDatabase.from_uri(f"sqlite:///{self.db_path}")
+            self.conn = sqlite3.connect(self.db_path)
+        except Exception as e:
+            print(f"An error occurred while connecting to the database. Error: {e}")
+
+    def run(self, inp: Dict):
+        if self.db is None or self.conn is None:
+            return {}
+        llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+        chain = create_sql_query_chain(llm, self.db)
+        query = chain.invoke({"question": inp[self.query_var]})
+        c = self.conn.cursor()
+        c.execute(query)
+        inp[self.result_var] = c.fetchall()
+        # return self.node.run(inp)
+        return inp
+
+
 class NodeFactory:
     @staticmethod
     def create_node(prompt_template: str, 
@@ -332,3 +412,11 @@ class NodeFactory:
                              docs_dir=docs_dir, context_var=context_var, query_var=query_var, k_result=k_result,
                              next_item=next_item, **kwargs)
 
+    @staticmethod
+    def create_sql_node(input_variables: List[str],
+                         output_variables: Union[str, Dict[str, type]],
+                         db_path: str,
+                         prompt_template: str = "",
+                         next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
+                         **kwargs):
+        return SQLRetrievalNode(input_variables, output_variables, db_path, prompt_template,next_item,**kwargs)
