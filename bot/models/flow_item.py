@@ -6,3 +6,6 @@ class FlowItem:
 
     def get_next_item(self):
         NotImplementedError("Subclasses must implement get_next_item method")
+    
+    def initialize(self, **kwargs):
+        NotImplementedError("Subclass must implement initialize method!")
