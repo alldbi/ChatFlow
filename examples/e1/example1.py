@@ -92,13 +92,14 @@ if __name__ == "__main__":
     1- The output is a json object that the value of the input message category is TRUE and other output keys are FALSE
     """
 
-    start_node = NodeFactory.create_node(model_name=model_name, prompt_template=decision_prompt,
+    start_node = NodeFactory.create_node(prompt_template=decision_prompt,
                                          input_variables=['user_message'],
                                          output_variables={'technical': bool,
                                                            'sales': bool,
                                                            'advertisement': bool,
                                                            'chitchat': bool},
-                                         return_inputs=True)
+                                         return_inputs=True,
+                                         model_name=model_name)
     advertisement_prompt = f"""You are a customer service chatbot. Answer the questions based on the provided policies.
 
     << ADVERTISEMENT QUESTIONS >>
@@ -108,10 +109,11 @@ if __name__ == "__main__":
     << USER MESSAGE >>
     """ + """{user_message}
     BOT RESPONSE:"""
-    adv_node = NodeFactory.create_node(model_name=model_name, prompt_template=advertisement_prompt,
+    adv_node = NodeFactory.create_node(prompt_template=advertisement_prompt,
                                        input_variables=['user_message'],
                                        output_variables='response',
-                                       is_output=True)
+                                       is_output=True,
+                                       model_name=model_name)
 
     technical_prompt = f"""You are a customer service chatbot. Answer the questions based on the provided policies.
 
@@ -122,10 +124,11 @@ if __name__ == "__main__":
     << USER MESSAGE >>
     """ + """{user_message}
     BOT RESPONSE:"""
-    tech_node = NodeFactory.create_node(model_name=model_name, prompt_template=technical_prompt,
+    tech_node = NodeFactory.create_node(prompt_template=technical_prompt,
                                         input_variables=['user_message'],
                                         output_variables='response',
-                                        is_output=True)
+                                        is_output=True,
+                                        model_name=model_name)
     sales_prompt = f"""You are a customer service chatbot. Answer the questions based on the provided policies.
 
     << SALES QUESTIONS >>
@@ -135,26 +138,29 @@ if __name__ == "__main__":
     << USER MESSAGE >>
     """ + """{user_message}
     BOT RESPONSE:"""
-    sales_node = NodeFactory.create_node(model_name=model_name, prompt_template=sales_prompt,
+    sales_node = NodeFactory.create_node(prompt_template=sales_prompt,
                                          input_variables=['user_message'],
                                          output_variables='response',
-                                         is_output=True)
+                                         is_output=True,
+                                         model_name=model_name)
     chitchat_prompt = """You are a warm and welcoming customer service chatbot of Pinnacle Auto Group a dealership. 
     chat with the client in a chitchat style and ask them if they have questions from customer service.
 
     << USER MESSAGE >>
     {user_message}
     BOT RESPONSE:"""
-    chitchat_node = NodeFactory.create_node(model_name=model_name, prompt_template=chitchat_prompt,
+    chitchat_node = NodeFactory.create_node(prompt_template=chitchat_prompt,
                                             input_variables=['user_message'],
                                             output_variables='response',
-                                            is_output=True)
+                                            is_output=True,
+                                            model_name=model_name)
     start_node.set_next_item({sales_node: Condition('sales', True, Operator.EQUALS),
                               adv_node: Condition('advertisement', True, Operator.EQUALS),
                               tech_node: Condition('technical', True, Operator.EQUALS),
                               chitchat_node: Condition('chitchat', True, Operator.EQUALS)})
 
     customer_service_flow = Flow(start_node=start_node)
+    customer_service_flow.initialize()
 
     inp = {'user_message': "what is the company's name"}
     print(customer_service_flow.run(inp))

@@ -23,12 +23,13 @@ if __name__ == "__main__":
         1- Put your answer in json format.
         1- The output is a json object that the value of the input message category is TRUE and other output keys are FALSE
         """
-    node_start = NodeFactory.create_node(model_name=model_name, prompt_template=prompt_decision,
+    node_start = NodeFactory.create_node(prompt_template=prompt_decision,
                                          input_variables=['user_message'],
                                          output_variables={'ServicePolicy': bool,
                                                            'DatabaseQuery': bool,
                                                            'chitchat': bool},
-                                         return_inputs=True)
+                                         return_inputs=True,
+                                         model_name=model_name)
 
     prompt_chitchat = """You are a warm and friendly Customer Support Representative. 
         chat with the user and ask them if they have questions related to the customer service policies or the database.
@@ -36,10 +37,11 @@ if __name__ == "__main__":
         << USER MESSAGE >>
         {user_message}
         BOT RESPONSE:"""
-    node_chitchat = NodeFactory.create_node(model_name=model_name, prompt_template=prompt_chitchat,
+    node_chitchat = NodeFactory.create_node(prompt_template=prompt_chitchat,
                                             input_variables=['user_message'],
                                             output_variables='response',
-                                            is_output=True)
+                                            is_output=True,
+                                            model_name=model_name)
 
     prompt_retrieval = """Answer the following question based on the provided context. Avoid using your own knowledge and adhere to the provided data.
 
@@ -51,8 +53,7 @@ if __name__ == "__main__":
     """
     persist_directory = os.path.join(os.getcwd(), "policyData")
     docs_dir = os.path.join(os.getcwd(), "accessible-customer-service-policy.pdf")
-    node_retrieval = NodeFactory.create_retrieval(model_name=model_name,
-                                                  prompt_template=prompt_retrieval,
+    node_retrieval = NodeFactory.create_retrieval(prompt_template=prompt_retrieval,
                                                   input_variables=['user_message'],
                                                   output_variables='response',
                                                   persist_directory=persist_directory,
@@ -62,15 +63,16 @@ if __name__ == "__main__":
                                                   query_var='user_message',
                                                   k_result=4,
                                                   return_inputs=True,
-                                                  is_output=True)
+                                                  is_output=True,
+                                                  model_name=model_name)
 
     db_path = "testDB.db"
-    node_sql_retrieval = NodeFactory.create_sql_node(model_name=model_name,
-                                                  input_variables=['user_message'],
+    node_sql_retrieval = NodeFactory.create_sql_node(input_variables=['user_message'],
                                                   output_variables='response',
                                                   db_path=db_path,
                                                   result='result',
-                                                  return_inputs=True)
+                                                  return_inputs=True,
+                                                  model_name=model_name)
     prompt_sql_qa = """Answer the following question based on the result, retrieved from the database. Avoid using your own knowledge and adhere to the provided data.
 
     << query >> 
@@ -80,10 +82,11 @@ if __name__ == "__main__":
     {result}
     """
 
-    node_sql_qa = NodeFactory.create_node(model_name=model_name, prompt_template=prompt_sql_qa,
+    node_sql_qa = NodeFactory.create_node(prompt_template=prompt_sql_qa,
                                             input_variables=['user_message', 'result'],
                                             output_variables='response',
-                                            is_output=True)
+                                            is_output=True,
+                                            model_name=model_name)
 
     node_start.set_next_item({node_retrieval: Condition('ServicePolicy', True, Operator.EQUALS),
                               node_sql_retrieval: Condition('DatabaseQuery', True, Operator.EQUALS),
@@ -91,6 +94,7 @@ if __name__ == "__main__":
     node_sql_retrieval.set_next_item(node_sql_qa)
 
     flow_bot = Flow(start_node=node_start)
+    flow_bot.initialize()
 
     inp = {'user_message': "Hi. My name is Henry."}
     res = flow_bot.run(inp)

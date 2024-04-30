@@ -38,13 +38,14 @@ if __name__ == "__main__":
         
 
         """
-    start_node = NodeFactory.create_node(model_name=model_name, prompt_template=decision_prompt,
+    start_node = NodeFactory.create_node(prompt_template=decision_prompt,
                                          input_variables=['user_message'],
                                          output_variables={'vocabulary': bool,
                                                            'grammar': bool,
                                                            'englishchat': bool,
                                                            'story': bool},
-                                         return_inputs=True)
+                                         return_inputs=True,
+                                         model_name=model_name)
 
 
     englishchat_prompt = '''
@@ -73,15 +74,17 @@ if __name__ == "__main__":
 
     BOT RESPONSE:"""
     
-    story_node = NodeFactory.create_node(model_name=model_name, prompt_template=story_prompt,
+    story_node = NodeFactory.create_node(prompt_template=story_prompt,
                                             input_variables=['user_message'],
                                             output_variables='response',
-                                            is_output=True)
+                                            is_output=True,
+                                            model_name=model_name)
 
-    englishchat_node = NodeFactory.create_node(model_name=model_name, prompt_template=englishchat_prompt,
+    englishchat_node = NodeFactory.create_node(prompt_template=englishchat_prompt,
                                             input_variables=['user_message'],
                                             output_variables='response',
-                                            is_output=True)
+                                            is_output=True,
+                                            model_name=model_name)
 
 
     retieval_prompt_template = """
@@ -98,8 +101,7 @@ if __name__ == "__main__":
     """
     persist_directory = os.path.join(os.getcwd(), "examples","e5","data")
     docs_dir = os.path.join(os.getcwd(), "examples","e5","test1.pdf")
-    retrieval_node = NodeFactory.create_retrieval(model_name=model_name,
-                                        prompt_template=retieval_prompt_template,
+    retrieval_node = NodeFactory.create_retrieval(prompt_template=retieval_prompt_template,
                                         input_variables=['user_message'],
                                         output_variables='response',
                                         persist_directory=persist_directory,
@@ -109,7 +111,8 @@ if __name__ == "__main__":
                                         query_var='user_message',
                                         k_result=4,
                                         return_inputs=True,
-                                        is_output=True)
+                                        is_output=True,
+                                        model_name=model_name)
 
 
     retieval_prompt_template2 = """You are an intelligent retrieval chatbot designed 
@@ -128,8 +131,7 @@ if __name__ == "__main__":
 
     persist_directory = os.path.join(os.getcwd(), "examples","e5","data2")
     docs_dir = os.path.join(os.getcwd(), "examples","e5","test2.pdf")
-    retrieval_node2 = NodeFactory.create_retrieval(model_name=model_name,
-                                        prompt_template=retieval_prompt_template2,
+    retrieval_node2 = NodeFactory.create_retrieval(prompt_template=retieval_prompt_template2,
                                         input_variables=['user_message'],
                                         output_variables='response',
                                         persist_directory=persist_directory,
@@ -139,7 +141,8 @@ if __name__ == "__main__":
                                         query_var='user_message',
                                         k_result=4,
                                         return_inputs=True,
-                                        is_output=True)
+                                        is_output=True,
+                                        model_name=model_name)
     
 
 
@@ -149,6 +152,7 @@ if __name__ == "__main__":
                               story_node: Condition('story', True, Operator.EQUALS)})
 
     flow_bot = Flow(start_node=start_node)
+    flow_bot.initialize()
    
     while(True):
         query = input("Ask me here:  ")

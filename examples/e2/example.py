@@ -23,11 +23,12 @@ if __name__ == "__main__":
         1- Put your answer in json format.
         1- The output is a json object that the value of the input message category is TRUE and other output keys are FALSE
         """
-    start_node = NodeFactory.create_node(model_name=model_name, prompt_template=decision_prompt,
+    start_node = NodeFactory.create_node(prompt_template=decision_prompt,
                                          input_variables=['user_message'],
                                          output_variables={'Scholarly': bool,
                                                            'chitchat': bool},
-                                         return_inputs=True)
+                                         return_inputs=True,
+                                         model_name=model_name)
 
 
     chitchat_prompt = """You are a warm and friendly, yet not so talkative Science Communicator. 
@@ -36,10 +37,11 @@ if __name__ == "__main__":
         << USER MESSAGE >>
         {user_message}
         BOT RESPONSE:"""
-    chitchat_node = NodeFactory.create_node(model_name=model_name, prompt_template=chitchat_prompt,
+    chitchat_node = NodeFactory.create_node(prompt_template=chitchat_prompt,
                                             input_variables=['user_message'],
                                             output_variables='response',
-                                            is_output=True)
+                                            is_output=True,
+                                            model_name=model_name)
 
 
     retieval_prompt_template = """Answer the following question based on the provided context. Avoid using your own knowledge and adhere to the provided data.
@@ -52,8 +54,7 @@ if __name__ == "__main__":
     """
     persist_directory = os.path.join(os.getcwd(), "data")
     docs_dir = os.path.join(os.getcwd(), "Candidate Set Sampling for Evaluating Top-N Recommendation.pdf")
-    retrieval_node = NodeFactory.create_retrieval(model_name=model_name,
-                                        prompt_template=retieval_prompt_template,
+    retrieval_node = NodeFactory.create_retrieval(prompt_template=retieval_prompt_template,
                                         input_variables=['user_message'],
                                         output_variables='response',
                                         persist_directory=persist_directory,
@@ -63,12 +64,14 @@ if __name__ == "__main__":
                                         query_var='user_message',
                                         k_result=4,
                                         return_inputs=True,
-                                        is_output=True)
+                                        is_output=True,
+                                        model_name=model_name)
 
     start_node.set_next_item({retrieval_node: Condition('Scholarly', True, Operator.EQUALS),
                               chitchat_node: Condition('chitchat', True, Operator.EQUALS)})
 
     flow_bot = Flow(start_node=start_node)
+    flow_bot.initialize()
 
     inp = {'user_message': "Hey, how is it going?"}
     res = flow_bot.run(inp)

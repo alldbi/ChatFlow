@@ -123,14 +123,15 @@ def main():
     1- The output is a json object that the value of the input message category is TRUE and other output keys are FALSE
     """
 
-    start_node = NodeFactory.create_node(model_name=model_name, prompt_template=decision_prompt,
+    start_node = NodeFactory.create_node(prompt_template=decision_prompt,
                                          input_variables=['user_message'],
                                          output_variables={'flight': bool,
                                                            'hotel': bool,
                                                            'car_rental': bool,
                                                            'vacation_packages': bool,
                                                            'chitchat': bool},
-                                         return_inputs=True)
+                                         return_inputs=True,
+                                         model_name=model_name)
 
     # Define nodes for different categories
     flight_info_prompt = f"""You are a travel assistant chatbot. 
@@ -143,10 +144,11 @@ def main():
     << USER MESSAGE >>
     """ + """{user_message}
     BOT RESPONSE:"""
-    flight_node = NodeFactory.create_node(model_name=model_name, prompt_template=flight_info_prompt,
+    flight_node = NodeFactory.create_node(prompt_template=flight_info_prompt,
                                           input_variables=['user_message'],
                                           output_variables='response',
-                                          is_output=True)
+                                          is_output=True,
+                                          model_name=model_name)
     
     
     hotel_info_prompt = f"""You are a travel assistant chatbot. 
@@ -160,10 +162,11 @@ def main():
     """ + """{user_message}
     BOT RESPONSE:"""
 
-    hotel_node = NodeFactory.create_node(model_name=model_name, prompt_template=hotel_info_prompt,
+    hotel_node = NodeFactory.create_node(prompt_template=hotel_info_prompt,
                                          input_variables=['user_message'],
                                          output_variables='response',
-                                         is_output=True)
+                                         is_output=True,
+                                         model_name=model_name)
     
     car_info_prompt = f"""You are a travel assistant chatbot. 
     Answer the questions based on the provided policies.
@@ -176,10 +179,11 @@ def main():
     """ + """{user_message}
     BOT RESPONSE:"""
 
-    car_rental_node = NodeFactory.create_node(model_name=model_name, prompt_template=car_info_prompt,
+    car_rental_node = NodeFactory.create_node(prompt_template=car_info_prompt,
                                               input_variables=['user_message'],
                                               output_variables='response',
-                                              is_output=True)
+                                              is_output=True,
+                                              model_name=model_name)
 
     vacation_packages_info_prompt = f"""You are a travel assistant chatbot. 
     Answer the questions based on the provided policies.
@@ -191,15 +195,17 @@ def main():
     << USER MESSAGE >>
     """ + """{user_message}
     BOT RESPONSE:"""
-    vacation_packages_node = NodeFactory.create_node(model_name=model_name, prompt_template=vacation_packages_info_prompt,
+    vacation_packages_node = NodeFactory.create_node(prompt_template=vacation_packages_info_prompt,
                                                      input_variables=['user_message'],
                                                      output_variables='response',
-                                                     is_output=True)
+                                                     is_output=True,
+                                                     model_name=model_name)
     
-    chitchat_node = NodeFactory.create_node(model_name=model_name, prompt_template=chitchat_prompt,
+    chitchat_node = NodeFactory.create_node(prompt_template=chitchat_prompt,
                                             input_variables=['user_message'],
                                             output_variables='response',
-                                            is_output=True)
+                                            is_output=True,
+                                            model_name=model_name)
 
 
     # Set next nodes based on user selection
@@ -211,6 +217,7 @@ def main():
 
     # Define the flow
     travel_bot_flow = Flow(start_node=start_node)
+    travel_bot_flow.initialize()
 
     # Sample user input
     while(True):
