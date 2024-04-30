@@ -11,6 +11,5 @@ return output in json format.
 << CURRENT STATE >>
 {current_state}
 
-
 """
     return prompt_template

@@ -17,6 +17,7 @@ class Flow:
         self.history: Memory = Memory()
         self.is_output = is_output
         self.model_name = model_name
+        self.states: List[State] = states
         if states is None:
             if start_node is None:
                 raise ValueError("start_node or states must be initiated!")
@@ -26,9 +27,44 @@ class Flow:
             if start_state is None:
                 # set the first item of the list as start state
                 start_state = states[0]
-            self.state_updater = StateUpdater(self.model_name, initial_state=start_state, states=states)
+            self.state_updater = StateUpdater(initial_state=start_state, states=states, model_name=self.model_name)
             self.start_node = None
 
+    def initialize(self):
+        all_nodes = self.get_all_nodes()
+        for node in all_nodes:
+            node.initialize(model_name = self.model_name)
+
+    def get_all_nodes(self, ):
+        # returns a list of all nodes in the flow
+        all_nodes = []
+        current_node: Node = self.start_node
+        if current_node:
+            all_nodes = self.get_all_node_successors(current_node)
+        else:
+            for state in self.states:
+                current_node = state.associated_node
+                if current_node is not None:
+                    all_nodes.extend(self.get_all_node_successors(current_node))
+            
+        return all_nodes
+
+    def get_all_node_successors(self, node: Node):
+        successors = [node]
+        next_item = node.get_next_item()
+        if next_item is None:
+            # nothing to add
+            return successors
+        if isinstance(next_item, FlowItem):
+            successors.extend(self.get_all_node_successors(next_item))
+            return successors
+        else:
+            for item in next_item:
+                successors.extend(self.get_all_node_successors(item))
+            return successors
+
+        
+    
     def set_model(self):
         # set model_name of the flow for all of the flowItems that has None model_name
         pass

@@ -1,6 +1,6 @@
 import os
 
-from typing import Dict, List, Set, Union
+from typing import Dict, List, Set, Union, Any
 from enum import Enum
 
 from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
@@ -20,51 +20,41 @@ from .memory import Memory
 from ..prompts.state_prompts import state_updater_prompt
 
 class Node(FlowItem):
-    def __init__(self, model_name,
-                 prompt_template: str, 
+    def __init__(self, prompt_template: str, 
                  input_variables:List[str], 
                  output_variables: Union[Dict[str, type], str],
-                 history_key: str = 'history',
-                 history_variables: Union[List[str], None] = None,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
-                 temperature: float = 0.1,
-                 max_tokens: int = 400,
-                 verbose: bool = False,
-                 return_inputs: bool = False,
-                 is_output: bool = False) -> None:
+                 **kwargs: Any) -> None:
         self.template = prompt_template
         self.input_variables: List[str] = input_variables
         self.output_variables: str = output_variables
-        self.history_key = history_key
-        self.history_variables = history_variables
         self.next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]] = next_item
-        self.model_name = model_name
-        self.temperature = temperature
-        self.max_tokens = max_tokens
-        self.return_inputs = return_inputs
-        self.is_output = is_output
-        self.verbose = verbose
+        self.model_name = kwargs.get('model_name', None)
+        self.temperature = kwargs.get('temperature', 0.1)
+        self.max_tokens = kwargs.get('max_tokens', 400)
+        self.verbose = kwargs.get('verbose', True)
+        self.return_inputs = kwargs.get('return_inputs', False)
+        self.is_output = kwargs.get('is_output', False)
+        self.history_key = kwargs.get('history_key', 'history')
+        self.history_variables = kwargs.get('history_variables', None)
+        self.history_count = kwargs.get('history_count', 10)
 
     def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]])-> None:
         self.next = next
     
     def get_next_item(self):
         return self.next
+    
+    def initialize(self, **kwargs):
+        raise NotImplementedError("This method must be implemented before access!")
 
 
 class JsonOutputNode(Node):
-    def __init__(self, model_name,
-                 prompt_template: str, 
+    def __init__(self, prompt_template: str, 
                  input_variables:List[str], 
                  output_variables: Dict[str, type],
-                 history_key: str = 'history',
-                 history_variables: Union[List[str], None] = None,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
-                 temperature: float = 0.1,
-                 max_tokens: int = 400,
-                 verbose: bool = False,
-                 return_inputs: bool = False,
-                 is_output: bool = False
+                 **kwargs: Any
                  ) -> None:
         """
 
@@ -72,19 +62,23 @@ class JsonOutputNode(Node):
         output_variables: a dictionary with variable names keys and variable types values
                 {'a':int, 'b':str}
         """
-        super().__init__(model_name=model_name, 
-                         prompt_template=prompt_template, 
+        super().__init__(prompt_template=prompt_template, 
                          input_variables=input_variables, 
                          output_variables=output_variables, 
-                         history_key=history_key,
-                         history_variables=history_variables,
                          next_item=next_item, 
-                         temperature=temperature, 
-                         max_tokens=max_tokens, verbose=verbose, return_inputs=return_inputs, is_output=is_output)
+                         **kwargs)
 
         self.parser = self._get_output_parser()
 
-        llm = ChatOpenAI(model_name=model_name, temperature=temperature, max_tokens=max_tokens, verbose=verbose)
+    
+    def initialize(self, **kwargs):
+        try:
+            model_name = self.model_name if self.model_name is not None else kwargs.get('model_name')
+        except:
+            # TODO implement debugging system
+            ValueError("model name is not defined! you must define model_name when you create the node or when you initialize it!")
+
+        llm = ChatOpenAI(model_name=model_name, temperature=self.temperature, max_tokens=self.max_tokens, verbose=self.verbose)
         # https://platform.openai.com/docs/guides/text-generation/json-mode
         self.model = llm.with_structured_output(
                     self._get_output_model(),
@@ -97,14 +91,14 @@ class JsonOutputNode(Node):
                                     #  ,partial_variables={"format_instructions": self.parser.get_format_instructions()}
                                      )
         # self.chain = self.prompt | self.model | self.parser
-        self.chain = self.prompt | self.model
+        self.chain = self.prompt | self.model 
     
-    
+
     def run(self, inp: Dict, memory: Union[Memory, None]=None):
         if memory is not None:
             # TODO add a method to read the related parts of the history and save them in its associated node. 
             # TODO debug and change the logic of getting input and returning it as output
-            inp[self.history_key] = memory.get_history_str(self.history_variables)
+            inp[self.history_key] = memory.get_history_str(self.history_variables, count=self.history_count)
         try:
             output = self.chain.invoke(input=inp)['parsed']
         except Exception as e:
@@ -133,50 +127,46 @@ class JsonOutputNode(Node):
 
 
 class StrOutputNode(Node):
-    def __init__(self, model_name,
-                 prompt_template: str, 
+    def __init__(self, prompt_template: str, 
                  input_variables:List[str], 
                  output_variables: str,
-                 history_key: str = 'history',
-                 history_variables: Union[List[str], None] = None,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
-                 temperature: float = 0.1,
-                 max_tokens: int = 400,
-                 verbose: bool = False,
-                 return_inputs: bool = False,
-                 is_output: bool = False
+                 **kwargs: Any
                  ) -> None:
         """
 
         input_variables: a list of input variable names
         output_variable: a string that is the name of the output string
         """
-        super().__init__(model_name=model_name, 
-                         prompt_template=prompt_template, 
+        super().__init__(prompt_template=prompt_template, 
                          input_variables=input_variables, 
                          output_variables=output_variables, 
-                         history_key=history_key,
-                         history_variables=history_variables,
                          next_item=next_item, 
-                         temperature=temperature, 
-                         max_tokens=max_tokens, verbose=verbose, return_inputs=return_inputs, is_output=is_output)
+                         **kwargs)
 
         self.parser = self._get_output_parser()
+        
+    def initialize(self, **kwargs):
+        try:
+            model_name = self.model_name if self.model_name is not None else kwargs.get('model_name')
+        except:
+            # TODO implement debugging system
+            ValueError("model name is not defined! you must define model_name when you create the node or when you initialize it!")
 
-        self.model = ChatOpenAI(model_name=model_name, temperature=temperature, max_tokens=max_tokens, verbose=verbose)
+        self.model = ChatOpenAI(model_name=model_name, temperature=self.temperature, max_tokens=self.max_tokens, verbose=self.verbose)
         
         self.prompt = PromptTemplate(template=self.template
                                      ,input_variables=self.input_variables
                                      )
         # self.chain = self.prompt | self.model | self.parser
         self.chain = self.prompt | self.model
-        
     
+
     def run(self, inp: Dict, memory: Union[Memory, None]=None):
         if memory is not None:
             # TODO add a method to read the related parts of the history and save them in its associated node. 
             # TODO debug and change the logic of getting input and returning it as output
-            inp[self.history_key] = memory.get_history_str(self.history_variables)
+            inp[self.history_key] = memory.get_history_str(self.history_variables, count=self.history_count)
         try:
             output = {self.output_variables: self.chain.invoke(input=inp).content}
         except Exception as e:
@@ -196,8 +186,7 @@ class StrOutputNode(Node):
 
 
 class RetrievalNode(Node):
-    def __init__(self, model_name, 
-                 prompt_template: str, 
+    def __init__(self, prompt_template: str, 
                  input_variables: List[str], 
                  output_variables: Union[str, Dict[str, type]],
                  persist_directory: str,
@@ -207,24 +196,18 @@ class RetrievalNode(Node):
                  query_var: str = 'query',
                  k_result: int = 1,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
-                 temperature: float = 0.1, 
-                 max_tokens: int = 400, 
-                 verbose: bool = False, 
-                 return_inputs: bool = False,
-                 is_output: bool = False
+                 **kwargs: Any
                  ) -> None:        
-        super().__init__(model_name=model_name, 
-                         prompt_template=prompt_template, 
+        super().__init__(prompt_template=prompt_template, 
+                         input_variables=input_variables, 
+                         output_variables=output_variables, 
+                         next_item=next_item,
+                         **kwargs)
+        self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(prompt_template=prompt_template, 
                          input_variables=input_variables, 
                          output_variables=output_variables, 
                          next_item=next_item, 
-                         temperature=temperature, 
-                         max_tokens=max_tokens, verbose=verbose, return_inputs=return_inputs, is_output=is_output)
-        self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(model_name, 
-                                                                                  prompt_template, 
-                                                                                  input_variables, output_variables, 
-                                                                                  next_item, temperature, max_tokens, 
-                                                                                  verbose, return_inputs, is_output)
+                         **kwargs)
         # TODO
         self.embeddings = OpenAIEmbeddings()
         self.persist_directory = persist_directory
@@ -235,6 +218,9 @@ class RetrievalNode(Node):
         self.query_var = query_var
         self.k = k_result
 
+    def initialize(self, **kwargs):
+        self.node.initialize(**kwargs)
+    
     def _init_v_store(self):
         if self._is_initiated_before():
             self.vector_db = Chroma(collection_name=self.collection_name, 
@@ -270,20 +256,20 @@ class RetrievalNode(Node):
         return self.node.run(inp)
 
 class StateUpdater(FlowItem):
-    def __init__(self, model_name, 
-                 initial_state: State, 
+    def __init__(self, initial_state: State, 
                  states: List[State] = None, 
-                 temperature: float = 0.1, max_tokens: int = 400, 
-                 verbose: bool = False, return_inputs: bool = False, 
-                 is_output: bool = False) -> None:
-        self.model_name = model_name
+                #  temperature: float = 0.1, max_tokens: int = 400, 
+                #  verbose: bool = False, return_inputs: bool = False, 
+                #  is_output: bool = False, 
+                 **kwargs) -> None:
+        # self.model_name = model_name
         self.current_state: State = initial_state
         self.states: List[State] = states
         self._init_vars()
-        self.node_runner = JsonOutputNode(self.model_name, self.prompt_template, 
+        self.node_runner = JsonOutputNode(self.prompt_template, 
                                           self.input_variables, self.output_variables, 
-                                          temperature=temperature, max_tokens=max_tokens, verbose=verbose, 
-                                          return_inputs=return_inputs, is_output=is_output)
+                                          **kwargs)
+        self.node_runner.initialize(**kwargs)
         
     def _init_vars(self):
         prompt = state_updater_prompt()
@@ -301,7 +287,6 @@ return a json object, with the name of all states, set current state to true and
         self.output_variables = output_variables
         self.name_to_state = name_to_state
 
-
     def update_state(self, history):
         inp = {'history': history, 'current_state':self.current_state.name}
         # TODO may be run is better than this name?
@@ -314,34 +299,24 @@ return a json object, with the name of all states, set current state to true and
 
 class NodeFactory:
     @staticmethod
-    def create_node(model_name, 
-                    prompt_template: str, 
+    def create_node(prompt_template: str, 
                     input_variables: List[str], 
                     output_variables: Union[Dict[str, type], str],
-                    history_key: str = 'history',
-                    history_variables: Union[List[str], None] = None,
                     next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
-                    temperature: float = 0.1, 
-                    max_tokens: int = 400, 
-                    verbose: bool = False, 
-                    return_inputs: bool = False,
-                    is_output: bool = False) -> Node:
+                    **kwargs) -> Node:
         if isinstance(output_variables, str):
-            return StrOutputNode(model_name, prompt_template, 
-                                 input_variables, output_variables, history_key, history_variables, next_item,
-                                 temperature, max_tokens, verbose, 
-                                 return_inputs, is_output)
+            return StrOutputNode(prompt_template, 
+                                 input_variables, output_variables, next_item,
+                                 **kwargs)
         elif isinstance(output_variables, Dict):
-            return JsonOutputNode(model_name, prompt_template, 
-                                 input_variables, output_variables, history_key, history_variables, next_item,
-                                 temperature, max_tokens, verbose, 
-                                 return_inputs, is_output)
+            return JsonOutputNode(prompt_template, 
+                                 input_variables, output_variables, next_item,
+                                 **kwargs)
         else:
             raise ValueError("invalid output variables type!")
         
     @staticmethod
-    def create_retrieval(model_name, 
-                 prompt_template: str, 
+    def create_retrieval(prompt_template: str, 
                  input_variables: List[str], 
                  output_variables: Union[str, Dict[str, type]],
                  persist_directory: str,
@@ -350,18 +325,10 @@ class NodeFactory:
                  context_var: str = 'context',
                  query_var: str = 'query',
                  k_result: int = 1,
-                 history_key: str = 'history',
-                 history_variables: Union[List[str], None] = None,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
-                 temperature: float = 0.1, 
-                 max_tokens: int = 400, 
-                 verbose: bool = False, 
-                 return_inputs: bool = False,
-                 is_output: bool = False):
-        return RetrievalNode(model_name, prompt_template, input_variables, 
-                             output_variables, persist_directory, collection_name,
-                             docs_dir, context_var, query_var, k_result, history_key,history_variables,
-                             next_item, temperature, max_tokens, verbose, 
-                             return_inputs, is_output)
-        
+                 **kwargs):
+        return RetrievalNode(prompt_template=prompt_template, input_variables=input_variables, 
+                             output_variables=output_variables, persist_directory=persist_directory, collection_name=collection_name,
+                             docs_dir=docs_dir, context_var=context_var, query_var=query_var, k_result=k_result,
+                             next_item=next_item, **kwargs)
 
