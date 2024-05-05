@@ -1,14 +1,10 @@
 from dotenv import load_dotenv
-import sys
-sys.path.insert(0, r'C:\Users\Saeed\Desktop\ChatFlow')
 from bot.models.condition import Condition, Operator
 from bot.models.node import NodeFactory
 from bot.models.flow import Flow
-import os
 
-os.environ['OPENAI_API_KEY'] = 'sk-...'
+load_dotenv()
 
-model_name = 'gpt-4-turbo-preview'
 
 def main():
     # Define travel-related policies
@@ -123,7 +119,7 @@ def main():
     1- The output is a json object that the value of the input message category is TRUE and other output keys are FALSE
     """
 
-    start_node = NodeFactory.create_node(model_name=model_name, prompt_template=decision_prompt,
+    start_node = NodeFactory.create_node(prompt_template=decision_prompt,
                                          input_variables=['user_message'],
                                          output_variables={'flight': bool,
                                                            'hotel': bool,
@@ -143,7 +139,7 @@ def main():
     << USER MESSAGE >>
     """ + """{user_message}
     BOT RESPONSE:"""
-    flight_node = NodeFactory.create_node(model_name=model_name, prompt_template=flight_info_prompt,
+    flight_node = NodeFactory.create_node(prompt_template=flight_info_prompt,
                                           input_variables=['user_message'],
                                           output_variables='response',
                                           is_output=True)
@@ -160,7 +156,7 @@ def main():
     """ + """{user_message}
     BOT RESPONSE:"""
 
-    hotel_node = NodeFactory.create_node(model_name=model_name, prompt_template=hotel_info_prompt,
+    hotel_node = NodeFactory.create_node(prompt_template=hotel_info_prompt,
                                          input_variables=['user_message'],
                                          output_variables='response',
                                          is_output=True)
@@ -176,7 +172,7 @@ def main():
     """ + """{user_message}
     BOT RESPONSE:"""
 
-    car_rental_node = NodeFactory.create_node(model_name=model_name, prompt_template=car_info_prompt,
+    car_rental_node = NodeFactory.create_node(prompt_template=car_info_prompt,
                                               input_variables=['user_message'],
                                               output_variables='response',
                                               is_output=True)
@@ -191,12 +187,12 @@ def main():
     << USER MESSAGE >>
     """ + """{user_message}
     BOT RESPONSE:"""
-    vacation_packages_node = NodeFactory.create_node(model_name=model_name, prompt_template=vacation_packages_info_prompt,
+    vacation_packages_node = NodeFactory.create_node(prompt_template=vacation_packages_info_prompt,
                                                      input_variables=['user_message'],
                                                      output_variables='response',
                                                      is_output=True)
     
-    chitchat_node = NodeFactory.create_node(model_name=model_name, prompt_template=chitchat_prompt,
+    chitchat_node = NodeFactory.create_node(prompt_template=chitchat_prompt,
                                             input_variables=['user_message'],
                                             output_variables='response',
                                             is_output=True)
@@ -211,6 +207,7 @@ def main():
 
     # Define the flow
     travel_bot_flow = Flow(start_node=start_node)
+    travel_bot_flow.initialize()
 
     # Sample user input
     while(True):

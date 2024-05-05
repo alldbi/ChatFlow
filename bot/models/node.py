@@ -11,6 +11,7 @@ from langchain.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.utilities import SQLDatabase
 from langchain.chains import create_sql_query_chain
+import pandas as pd
 
 import sqlite3
 from pydantic import BaseModel
@@ -22,13 +23,12 @@ from .state import State
 from .memory import Memory
 from ..prompts.state_prompts import state_updater_prompt
 
+
 class Node(FlowItem):
-    def __init__(self, prompt_template: str, 
-                 input_variables:List[str], 
+    def __init__(self, input_variables: List[str],
                  output_variables: Union[Dict[str, type], str],
-                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
                  **kwargs: Any) -> None:
-        self.template = prompt_template
         self.input_variables: List[str] = input_variables
         self.output_variables: str = output_variables
         self.next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]] = next_item
@@ -42,7 +42,7 @@ class Node(FlowItem):
         self.history_variables = kwargs.get('history_variables', None)
         self.history_count = kwargs.get('history_count', 10)
 
-    def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]])-> None:
+    def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]]) -> None:
         self.next = next
     
     def get_next_item(self):
@@ -50,6 +50,7 @@ class Node(FlowItem):
     
     def initialize(self, **kwargs):
         raise NotImplementedError("This method must be implemented before access!")
+
 
 class Creative_Node(FlowItem):
 
@@ -82,9 +83,10 @@ class Creative_Node(FlowItem):
     def get_next_item(self):
         return self.next
 
+
 class JsonOutputNode(Node):
     def __init__(self, prompt_template: str, 
-                 input_variables:List[str], 
+                 input_variables: List[str],
                  output_variables: Dict[str, type],
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
                  **kwargs: Any
@@ -95,12 +97,11 @@ class JsonOutputNode(Node):
         output_variables: a dictionary with variable names keys and variable types values
                 {'a':int, 'b':str}
         """
-        super().__init__(prompt_template=prompt_template, 
-                         input_variables=input_variables, 
+        super().__init__(input_variables=input_variables,
                          output_variables=output_variables, 
                          next_item=next_item, 
                          **kwargs)
-
+        self.template = prompt_template
         self.parser = self._get_output_parser()
 
     
@@ -171,12 +172,11 @@ class StrOutputNode(Node):
         input_variables: a list of input variable names
         output_variable: a string that is the name of the output string
         """
-        super().__init__(prompt_template=prompt_template, 
-                         input_variables=input_variables, 
+        super().__init__(input_variables=input_variables,
                          output_variables=output_variables, 
                          next_item=next_item, 
                          **kwargs)
-
+        self.template = prompt_template
         self.parser = self._get_output_parser()
         
     def initialize(self, **kwargs):
@@ -193,7 +193,6 @@ class StrOutputNode(Node):
                                      )
         # self.chain = self.prompt | self.model | self.parser
         self.chain = self.prompt | self.model
-    
 
     def run(self, inp: Dict, memory: Union[Memory, None]=None):
         if memory is not None:
@@ -219,40 +218,36 @@ class StrOutputNode(Node):
 
 
 class RetrievalNode(Node):
-    def __init__(self, prompt_template: str, 
-                 input_variables: List[str], 
+    def __init__(self, input_variables: List[str],
                  output_variables: Union[str, Dict[str, type]],
                  persist_directory: str,
                  collection_name: str,
                  docs_dir: str,
-                 context_var: str = 'context',
-                 query_var: str = 'query',
                  k_result: int = 1,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
                  **kwargs: Any
-                 ) -> None:        
-        super().__init__(prompt_template=prompt_template, 
-                         input_variables=input_variables, 
+                 ) -> None:
+        super().__init__(input_variables=input_variables,
                          output_variables=output_variables, 
                          next_item=next_item,
                          **kwargs)
-        self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(prompt_template=prompt_template, 
-                         input_variables=input_variables, 
-                         output_variables=output_variables, 
-                         next_item=next_item, 
-                         **kwargs)
+        # self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(prompt_template=prompt_template,
+        #                  input_variables=input_variables,
+        #                  output_variables=output_variables,
+        #                  next_item=next_item,
+        #                  **kwargs)
         # TODO
         self.embeddings = OpenAIEmbeddings()
         self.persist_directory = persist_directory
         self.collection_name = collection_name
         self.docs_dir = docs_dir
+        self.content_cols = kwargs.get('content_cols', [])
+        self.metadata_cols = kwargs.get('metadata_cols', [])
         self._init_v_store()
-        self.context_var = context_var
-        self.query_var = query_var
         self.k = k_result
 
     def initialize(self, **kwargs):
-        self.node.initialize(**kwargs)
+        pass
     
     def _init_v_store(self):
         if self._is_initiated_before():
@@ -261,32 +256,72 @@ class RetrievalNode(Node):
                                     embedding_function=self.embeddings)
         else:
             # create the vector db and add embeddings
-            loader = PyPDFLoader(self.docs_dir)
-            loaded_document = loader.load()
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000,
-                                                           chunk_overlap=10,
-                                                           length_function=len,
-                                                           is_separator_regex=False)
-            documents = text_splitter.split_documents(loaded_document)
+            if self.docs_dir[-4:] == ".pdf":
+                loader = PyPDFLoader(self.docs_dir)
 
-            # TODO enable other embedding types
-            self.vector_db = Chroma.from_documents(documents=documents,
-                                              embedding=self.embeddings, 
-                                              persist_directory=self.persist_directory, 
-                                              collection_name=self.collection_name)
+                loaded_document = loader.load()
+
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=1000,
+                    chunk_overlap=10,
+                    length_function=len,
+                    is_separator_regex=False,
+                )
+                documents = text_splitter.split_documents(loaded_document)
+
+                # TODO enable other embedding types
+                self.vector_db = Chroma.from_documents(
+                    documents=documents,
+                    embedding=self.embeddings,
+                    persist_directory=self.persist_directory,
+                    collection_name=self.collection_name,
+                )
+
+            elif self.docs_dir[-4:] == ".csv":
+                temp_df = pd.read_csv(self.docs_dir)
+                texts = []
+                metadatas = []
+                for i in range(len(temp_df)):
+                    content = ""
+                    for col in self.content_cols:
+                        content += col + "\n" + str(temp_df.iloc[i][col]) + "\n"
+                    texts.append(content)
+
+                    metadata = {}
+                    for col in self.metadata_cols:
+                        metadata[col] = str(temp_df.iloc[i][col])
+                    metadatas.append(metadata)
+
+                self.vector_db = Chroma.from_texts(
+                    texts=texts,
+                    metadatas=metadatas,
+                    collection_name=self.collection_name,
+                    embedding=self.embeddings,
+                    persist_directory=self.persist_directory,
+                )
 
     def _is_initiated_before(self):
         # TODO a better checking method
         db_file_path = os.path.join(self.persist_directory,"chroma.sqlite3")
         return os.path.exists(db_file_path)
     
-    def run(self, inp: Dict, memory: Union[Memory, None]=None):
+    def run(self, inp: Dict, memory: Union[Memory, None] = None):
         # TODO the pdf loader or the similarity search doesn't work properly and I dont get any results
         retriever = self.vector_db.as_retriever()
-        retrieved_docs = retriever.get_relevant_documents(query=inp[self.query_var], k=self.k)
+        if len(self.input_variables) == 1:
+            query = inp[self.input_variables[0]]
+        else:
+            query = ""
+            for var in self.input_variables:
+                query += f"{var}: {inp[var]}\n"
+        retrieved_docs = retriever.get_relevant_documents(query=query, k=self.k)
         # retrieved_docs = self.vector_db.similarity_search(query=inp[self.query_var], k=self.k)
-        inp[self.context_var] = '\n'.join(d.page_content for d in retrieved_docs)
-        return self.node.run(inp)
+        if isinstance(self.output_variables, str):
+            inp[self.output_variables] = '\n'.join(d.page_content for d in retrieved_docs)
+            return inp
+        else:
+            raise NotImplementedError("Not supported yet!")
+
 
 class StateUpdater(FlowItem):
     def __init__(self, initial_state: State, 
@@ -331,31 +366,22 @@ return a json object, with the name of all states, set current state to true and
     
 
 class SQLRetrievalNode(Node):
-    def __init__(self, input_variables: List[str],
-                 output_variables: Union[str, Dict[str, type]],
-                 db_path: str,
-                 prompt_template: str = '',
+    def __init__(self, db_path: str, input_variables: List[str], output_variables: Union[str, Dict[str, type]],
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
                  **kwargs: Any
                  ) -> None:
-        super().__init__(prompt_template, input_variables,
-                         output_variables, next_item, **kwargs)
-        self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(prompt_template=prompt_template, 
-                         input_variables=input_variables, 
-                         output_variables=output_variables, 
-                         next_item=next_item, 
-                         **kwargs)
         # TODO
         self.db_path = db_path
         self.db = None
         self.conn = None
         self._connect_to_db()
-        self.result_var = kwargs.get('result_var', 'result')
-        self.query_var = kwargs.get('query_var', 'user_message')
-        self.current_query = None
+        super().__init__(input_variables=input_variables,
+                         output_variables=output_variables,
+                         next_item=next_item,
+                         **kwargs)
         
     def initialize(self, **kwargs):
-        self.node.initialize(**kwargs)
+        pass
 
     def _connect_to_db(self):
         try:
@@ -364,17 +390,25 @@ class SQLRetrievalNode(Node):
         except Exception as e:
             print(f"An error occurred while connecting to the database. Error: {e}")
 
-    def run(self, inp: Dict):
+    def run(self, inp: Dict, memory: Union[Memory, None] = None):
         if self.db is None or self.conn is None:
             return {}
         llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
         chain = create_sql_query_chain(llm, self.db)
-        query = chain.invoke({"question": inp[self.query_var]})
+        if len(self.input_variables) == 1:
+            query = inp[self.input_variables[0]]
+        else:
+            query = ""
+            for var in self.input_variables:
+                query += f"{var}: {inp[var]}\n"
+        query = chain.invoke({"question": query})
         c = self.conn.cursor()
         c.execute(query)
-        inp[self.result_var] = c.fetchall()
-        # return self.node.run(inp)
-        return inp
+        if isinstance(self.output_variables, str):
+            inp[self.output_variables] = c.fetchall()
+            return inp
+        else:
+            raise NotImplementedError("Not supported yet!")
 
 
 class NodeFactory:
@@ -396,27 +430,23 @@ class NodeFactory:
             raise ValueError("invalid output variables type!")
         
     @staticmethod
-    def create_retrieval(prompt_template: str, 
-                 input_variables: List[str], 
+    def create_retrieval(input_variables: List[str],
                  output_variables: Union[str, Dict[str, type]],
                  persist_directory: str,
                  collection_name: str,
                  docs_dir: str,
-                 context_var: str = 'context',
-                 query_var: str = 'query',
                  k_result: int = 1,
                  next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
                  **kwargs):
-        return RetrievalNode(prompt_template=prompt_template, input_variables=input_variables, 
-                             output_variables=output_variables, persist_directory=persist_directory, collection_name=collection_name,
-                             docs_dir=docs_dir, context_var=context_var, query_var=query_var, k_result=k_result,
-                             next_item=next_item, **kwargs)
+        return RetrievalNode(input_variables=input_variables, output_variables=output_variables,
+                             persist_directory=persist_directory, collection_name=collection_name,
+                             docs_dir=docs_dir, k_result=k_result, next_item=next_item, **kwargs)
 
     @staticmethod
     def create_sql_node(input_variables: List[str],
-                         output_variables: Union[str, Dict[str, type]],
-                         db_path: str,
-                         prompt_template: str = "",
-                         next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
-                         **kwargs):
-        return SQLRetrievalNode(input_variables, output_variables, db_path, prompt_template,next_item,**kwargs)
+                        output_variables: Union[str, Dict[str, type]],
+                        db_path: str,
+                        next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
+                        **kwargs):
+        return SQLRetrievalNode(input_variables=input_variables, output_variables=output_variables,
+                                db_path=db_path, next_item=next_item, **kwargs)
