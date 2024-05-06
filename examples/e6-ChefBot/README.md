@@ -10,4 +10,4 @@ The chatbot operates in two different phases. The first phase is for general chi
 
 ## Workflow Diagram
 
-![Image Alt Text](./assets/ChefBot.png)
+![Image Alt Text](./assets/ChefBot1.png)
