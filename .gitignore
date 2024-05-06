@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+vnev/
+dataset/
+
 # Distribution / packaging
 .Python
 build/
