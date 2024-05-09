@@ -5,13 +5,15 @@ from .node import *
 from .flow_item import FlowItem
 from .state import State
 from .memory import Memory
+from bot.utils.logger import Logger
 
 class Flow:
     def __init__(self, model_name='gpt-3.5-turbo-0125', 
                  start_node:Union[FlowItem, Dict[FlowItem, Condition], None] =None,
                  states: Union[List[State], None]=None, 
                  start_state: Union[State, None]=None, 
-                 is_output: bool = False) -> None:
+                 is_output: bool = False,
+                 debug: bool = False) -> None:
         
         # TODO revise implementation of the history
         self.history: Memory = Memory()
@@ -29,11 +31,15 @@ class Flow:
                 start_state = states[0]
             self.state_updater = StateUpdater(initial_state=start_state, states=states, model_name=self.model_name)
             self.start_node = None
+        
+        self.logger = Logger(debug=debug)
+        self.initialize()
+
 
     def initialize(self):
         all_nodes = self.get_all_nodes()
-        for node in all_nodes:
-            node.initialize(model_name = self.model_name)
+        for i, node in enumerate(all_nodes):
+            node.initialize(model_name = self.model_name, name = f'Node {i}')
 
     def get_all_nodes(self, ):
         # returns a list of all nodes in the flow
@@ -63,11 +69,6 @@ class Flow:
                 successors.extend(self.get_all_node_successors(item))
             return successors
 
-        
-    
-    def set_model(self):
-        # set model_name of the flow for all of the flowItems that has None model_name
-        pass
     
     def select_start_node(self):
         if self.start_node is None:
@@ -80,13 +81,19 @@ class Flow:
             history_str = self.history.get_history_str()
             self.state_updater.update_state(history_str)
 
+    def get_state_name(self):
+        if self.state_updater is not None:
+            return self.state_updater.current_state.name
+        return ""
     
     def run(self, inp: dict):
         self.history.add(inp)
         current_node = self.select_start_node()
         current_input = copy.deepcopy(inp)
         while True:
-            current_input = current_node.run(current_input, self.history)
+            node_output = current_node.run(current_input, self.history)
+            self.logger.log(node_name=current_node.name, state_name=self.get_state_name(), inp=current_input, out=node_output)
+            current_input = node_output
             if current_node.is_output:
                 self.history.add(current_input)
                 self.update_state()

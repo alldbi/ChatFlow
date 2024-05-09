@@ -41,6 +41,7 @@ class Node(FlowItem):
         self.history_key = kwargs.get('history_key', 'history')
         self.history_variables = kwargs.get('history_variables', None)
         self.history_count = kwargs.get('history_count', 10)
+        self.name = kwargs.get('name', None)
 
     def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]])-> None:
         self.next = next
@@ -109,7 +110,13 @@ class JsonOutputNode(Node):
             model_name = self.model_name if self.model_name is not None else kwargs.get('model_name')
         except:
             # TODO implement debugging system
-            ValueError("model name is not defined! you must define model_name when you create the node or when you initialize it!")
+            ValueError("model name is not defined! model_name must be defined when you create node or the flow!")
+
+        try:
+            node_name = self.name if self.name is not None else kwargs.get('name')
+            self.name = node_name
+        except:
+            ValueError("node name is not defined! name of the node must be defined when you create node or flow")
 
         llm = ChatOpenAI(model_name=model_name, temperature=self.temperature, max_tokens=self.max_tokens, verbose=self.verbose)
         # https://platform.openai.com/docs/guides/text-generation/json-mode
@@ -184,7 +191,13 @@ class StrOutputNode(Node):
             model_name = self.model_name if self.model_name is not None else kwargs.get('model_name')
         except:
             # TODO implement debugging system
-            ValueError("model name is not defined! you must define model_name when you create the node or when you initialize it!")
+            ValueError("model name is not defined! model_name must be defined when you create node or flow")
+
+        try:
+            node_name = self.name if self.name is not None else kwargs.get('name')
+            self.name = node_name
+        except:
+            ValueError("node name is not defined! name of the node must be defined when you create node or flow")
 
         self.model = ChatOpenAI(model_name=model_name, temperature=self.temperature, max_tokens=self.max_tokens, verbose=self.verbose)
         
