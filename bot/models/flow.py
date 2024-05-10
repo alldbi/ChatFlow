@@ -120,9 +120,3 @@ class Flow:
 
             else:
                 current_node = next_item
-
-    
-
-
-
-    
