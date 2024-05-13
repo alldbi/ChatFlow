@@ -44,23 +44,23 @@ class Node(FlowItem):
 
     def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]]) -> None:
         self.next = next
-    
+
     def get_next_item(self):
         return self.next
-    
+
     def initialize(self, **kwargs):
         raise NotImplementedError("This method must be implemented before access!")
 
 
 class Creative_Node(FlowItem):
 
-# Only temperature was increased
+    # Only temperature was increased
 
     def __init__(self, model_name,
-                 prompt_template: str, 
-                 input_variables:List[str], 
+                 prompt_template: str,
+                 input_variables: List[str],
                  output_variables: Union[Dict[str, type], str],
-                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
                  temperature: float = 0.9,
                  max_tokens: int = 400,
                  verbose: bool = False,
@@ -77,18 +77,18 @@ class Creative_Node(FlowItem):
         self.is_output = is_output
         self.verbose = verbose
 
-    def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]])-> None:
+    def set_next_item(self, next: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition]]) -> None:
         self.next = next
-    
+
     def get_next_item(self):
         return self.next
 
 
 class JsonOutputNode(Node):
-    def __init__(self, prompt_template: str, 
+    def __init__(self, prompt_template: str,
                  input_variables: List[str],
                  output_variables: Dict[str, type],
-                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
                  **kwargs: Any
                  ) -> None:
         """
@@ -98,13 +98,12 @@ class JsonOutputNode(Node):
                 {'a':int, 'b':str}
         """
         super().__init__(input_variables=input_variables,
-                         output_variables=output_variables, 
-                         next_item=next_item, 
+                         output_variables=output_variables,
+                         next_item=next_item,
                          **kwargs)
         self.template = prompt_template
         self.parser = self._get_output_parser()
 
-    
     def initialize(self, **kwargs):
         try:
             model_name = self.model_name if self.model_name is not None else kwargs.get('model_name')
@@ -112,25 +111,25 @@ class JsonOutputNode(Node):
             # TODO implement debugging system
             ValueError("model name is not defined! you must define model_name when you create the node or when you initialize it!")
 
-        llm = ChatOpenAI(model_name=model_name, temperature=self.temperature, max_tokens=self.max_tokens, verbose=self.verbose)
+        llm = ChatOpenAI(model_name=model_name, temperature=self.temperature, max_tokens=self.max_tokens,
+                         verbose=self.verbose)
         # https://platform.openai.com/docs/guides/text-generation/json-mode
         self.model = llm.with_structured_output(
-                    self._get_output_model(),
-                    method="json_mode",
-                    include_raw=True
-                )
-        
+            self._get_output_model(),
+            method="json_mode",
+            include_raw=True
+        )
+
         self.prompt = PromptTemplate(template=self.template
-                                     ,input_variables=self.input_variables
-                                    #  ,partial_variables={"format_instructions": self.parser.get_format_instructions()}
+                                     , input_variables=self.input_variables
+                                     #  ,partial_variables={"format_instructions": self.parser.get_format_instructions()}
                                      )
         # self.chain = self.prompt | self.model | self.parser
-        self.chain = self.prompt | self.model 
-    
+        self.chain = self.prompt | self.model
 
-    def run(self, inp: Dict, memory: Union[Memory, None]=None):
+    def run(self, inp: Dict, memory: Union[Memory, None] = None):
         if memory is not None:
-            # TODO add a method to read the related parts of the history and save them in its associated node. 
+            # TODO add a method to read the related parts of the history and save them in its associated node.
             # TODO debug and change the logic of getting input and returning it as output
             inp[self.history_key] = memory.get_history_str(self.history_variables, count=self.history_count)
         try:
@@ -138,21 +137,21 @@ class JsonOutputNode(Node):
         except Exception as e:
             print(e)
             output = {k: None for k in self.output_variables}
-        
+
         if self.return_inputs:
             output.update(inp)
             return output
-        
+
         if memory is not None:
             # TODO save output in memory if needed
             pass
-        
+
         return output
 
     def _get_output_model(self):
         output_model = create_model('OutputModel', **{k: (v, ...) for k, v in self.output_variables.items()})
         return output_model
-    
+
     def _get_output_parser(self) -> JsonOutputParser:
         parser = JsonOutputParser()
         output_model = self._get_output_model()
@@ -161,10 +160,10 @@ class JsonOutputNode(Node):
 
 
 class StrOutputNode(Node):
-    def __init__(self, prompt_template: str, 
-                 input_variables:List[str], 
+    def __init__(self, prompt_template: str,
+                 input_variables: List[str],
                  output_variables: str,
-                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None,
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
                  **kwargs: Any
                  ) -> None:
         """
@@ -173,12 +172,12 @@ class StrOutputNode(Node):
         output_variable: a string that is the name of the output string
         """
         super().__init__(input_variables=input_variables,
-                         output_variables=output_variables, 
-                         next_item=next_item, 
+                         output_variables=output_variables,
+                         next_item=next_item,
                          **kwargs)
         self.template = prompt_template
         self.parser = self._get_output_parser()
-        
+
     def initialize(self, **kwargs):
         try:
             model_name = self.model_name if self.model_name is not None else kwargs.get('model_name')
@@ -186,17 +185,18 @@ class StrOutputNode(Node):
             # TODO implement debugging system
             ValueError("model name is not defined! you must define model_name when you create the node or when you initialize it!")
 
-        self.model = ChatOpenAI(model_name=model_name, temperature=self.temperature, max_tokens=self.max_tokens, verbose=self.verbose)
-        
+        self.model = ChatOpenAI(model_name=model_name, temperature=self.temperature, max_tokens=self.max_tokens,
+                                verbose=self.verbose)
+
         self.prompt = PromptTemplate(template=self.template
-                                     ,input_variables=self.input_variables
+                                     , input_variables=self.input_variables
                                      )
         # self.chain = self.prompt | self.model | self.parser
         self.chain = self.prompt | self.model
 
-    def run(self, inp: Dict, memory: Union[Memory, None]=None):
+    def run(self, inp: Dict, memory: Union[Memory, None] = None):
         if memory is not None:
-            # TODO add a method to read the related parts of the history and save them in its associated node. 
+            # TODO add a method to read the related parts of the history and save them in its associated node.
             # TODO debug and change the logic of getting input and returning it as output
             inp[self.history_key] = memory.get_history_str(self.history_variables, count=self.history_count)
         try:
@@ -206,13 +206,13 @@ class StrOutputNode(Node):
             output = {self.output_variables: None}
         if self.return_inputs:
             output.update(inp)
-        
+
         if memory is not None:
             # TODO save output in memory if needed
             pass
 
         return output
-    
+
     def _get_output_parser(self) -> StrOutputParser:
         return StrOutputParser
 
@@ -224,11 +224,11 @@ class RetrievalNode(Node):
                  collection_name: str,
                  docs_dir: str,
                  k_result: int = 1,
-                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
+                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
                  **kwargs: Any
                  ) -> None:
         super().__init__(input_variables=input_variables,
-                         output_variables=output_variables, 
+                         output_variables=output_variables,
                          next_item=next_item,
                          **kwargs)
         # self.node: Union[StrOutputNode, JsonOutputNode] = NodeFactory.create_node(prompt_template=prompt_template,
@@ -248,11 +248,11 @@ class RetrievalNode(Node):
 
     def initialize(self, **kwargs):
         pass
-    
+
     def _init_v_store(self):
         if self._is_initiated_before():
-            self.vector_db = Chroma(collection_name=self.collection_name, 
-                                    persist_directory=self.persist_directory, 
+            self.vector_db = Chroma(collection_name=self.collection_name,
+                                    persist_directory=self.persist_directory,
                                     embedding_function=self.embeddings)
         else:
             # create the vector db and add embeddings
@@ -302,9 +302,9 @@ class RetrievalNode(Node):
 
     def _is_initiated_before(self):
         # TODO a better checking method
-        db_file_path = os.path.join(self.persist_directory,"chroma.sqlite3")
+        db_file_path = os.path.join(self.persist_directory, "chroma.sqlite3")
         return os.path.exists(db_file_path)
-    
+
     def run(self, inp: Dict, memory: Union[Memory, None] = None):
         # TODO the pdf loader or the similarity search doesn't work properly and I dont get any results
         retriever = self.vector_db.as_retriever()
@@ -324,21 +324,21 @@ class RetrievalNode(Node):
 
 
 class StateUpdater(FlowItem):
-    def __init__(self, initial_state: State, 
-                 states: List[State] = None, 
-                #  temperature: float = 0.1, max_tokens: int = 400, 
-                #  verbose: bool = False, return_inputs: bool = False, 
-                #  is_output: bool = False, 
+    def __init__(self, initial_state: State,
+                 states: List[State] = None,
+                 #  temperature: float = 0.1, max_tokens: int = 400,
+                 #  verbose: bool = False, return_inputs: bool = False,
+                 #  is_output: bool = False,
                  **kwargs) -> None:
         # self.model_name = model_name
         self.current_state: State = initial_state
         self.states: List[State] = states
         self._init_vars()
-        self.node_runner = JsonOutputNode(self.prompt_template, 
-                                          self.input_variables, self.output_variables, 
+        self.node_runner = JsonOutputNode(self.prompt_template,
+                                          self.input_variables, self.output_variables,
                                           **kwargs)
         self.node_runner.initialize(**kwargs)
-        
+
     def _init_vars(self):
         prompt = state_updater_prompt()
         self.input_variables = ['history', 'current_state']
@@ -348,22 +348,22 @@ class StateUpdater(FlowItem):
             prompt += str(state)
             output_variables[state.name] = bool
             name_to_state[state.name] = state
-        
+
         prompt += """
-return a json object, with the name of all states, set current state to true and al of the other states to false."""
+return a json object, with the name of all states, set current state to true and all of the other states to false."""
         self.prompt_template = prompt
         self.output_variables = output_variables
         self.name_to_state = name_to_state
 
     def update_state(self, history):
-        inp = {'history': history, 'current_state':self.current_state.name}
+        inp = {'history': history, 'current_state': self.current_state.name}
         # TODO may be run is better than this name?
         decision_result = self.node_runner.run(inp)
         for st_name, v in decision_result.items():
             if v:
                 self.current_state = self.name_to_state[st_name]
                 break
-    
+
 
 class SQLRetrievalNode(Node):
     def __init__(self, db_path: str, input_variables: List[str], output_variables: Union[str, Dict[str, type]],
@@ -379,7 +379,7 @@ class SQLRetrievalNode(Node):
                          output_variables=output_variables,
                          next_item=next_item,
                          **kwargs)
-        
+
     def initialize(self, **kwargs):
         pass
 
@@ -413,31 +413,31 @@ class SQLRetrievalNode(Node):
 
 class NodeFactory:
     @staticmethod
-    def create_node(prompt_template: str, 
-                    input_variables: List[str], 
+    def create_node(prompt_template: str,
+                    input_variables: List[str],
                     output_variables: Union[Dict[str, type], str],
-                    next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
+                    next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
                     **kwargs) -> Node:
         if isinstance(output_variables, str):
-            return StrOutputNode(prompt_template, 
+            return StrOutputNode(prompt_template,
                                  input_variables, output_variables, next_item,
                                  **kwargs)
         elif isinstance(output_variables, Dict):
-            return JsonOutputNode(prompt_template, 
-                                 input_variables, output_variables, next_item,
-                                 **kwargs)
+            return JsonOutputNode(prompt_template,
+                                  input_variables, output_variables, next_item,
+                                  **kwargs)
         else:
             raise ValueError("invalid output variables type!")
-        
+
     @staticmethod
     def create_retrieval(input_variables: List[str],
-                 output_variables: Union[str, Dict[str, type]],
-                 persist_directory: str,
-                 collection_name: str,
-                 docs_dir: str,
-                 k_result: int = 1,
-                 next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None]=None, 
-                 **kwargs):
+                         output_variables: Union[str, Dict[str, type]],
+                         persist_directory: str,
+                         collection_name: str,
+                         docs_dir: str,
+                         k_result: int = 1,
+                         next_item: Union[FlowItem, List[FlowItem], Dict[FlowItem, Condition], None] = None,
+                         **kwargs):
         return RetrievalNode(input_variables=input_variables, output_variables=output_variables,
                              persist_directory=persist_directory, collection_name=collection_name,
                              docs_dir=docs_dir, k_result=k_result, next_item=next_item, **kwargs)
