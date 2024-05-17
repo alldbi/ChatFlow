@@ -5,12 +5,17 @@ Automate chatbot development with ease using this framework. Create a chatbot by
 This framework simplifies chatbot development by allowing users to create nodes and connect them to form workflows. It supports various output formats and retrieval nodes, with the ability to define custom nodes. (#TODO)
 
 ## Comparison with Agents
-LLM-Agents are ...
-This framework advantages:  (#TODO)
-1   efficiency in terms of number of consumed tokens, 
-2   less execution time
-3-  more reliable (restricted or predefined planning)
+LLM agents are systems that leverage the capabilities of large language models to perform various tasks autonomously or semi-autonomously. These agents integrate several modules to process inputs, generate responses, interact with users, and sometimes even learn from their interactions. You can see an [illustration](https://lilianweng.github.io/posts/2023-06-23-agent/) of different components involved in an LLM agent in the image below. This architecture includes memory management, planning, tool integration, and action execution, all orchestrated by the central agent component.
+![agent components - https://lilianweng.github.io/posts/2023-06-23-agent/](assets/agents.png)
 
+### Advantages of ChatbotFlow Framework:
+ChatbotFlow framework can be described as a kind of restricted agent because the planning component found in typical agents is replaced with a predefined flowchart that contains rules for routing. In this framework, chatbot decisions are not entirely made by LLMs. At each state, the user can define a node for decision-making and plan subsequent nodes based on the output of the current node.   
+
+1.  Efficiency in Token Usage: By using hard-coded reasoning and rule-based decision-making, ChatbotFlow significantly reduces the number of tokens required for each interaction. This efficient use of tokens can result in lower operational costs and faster processing times.
+2.  Speed: The rule-based decision-making process in ChatbotFlow ensures faster response times compared to LLM agents, which may require complex reasoning and planning. The simplicity of rule-based logic avoids the computational overhead associated with the advanced planning mechanisms of LLM agents.
+3.  Reliability in Production: ChatbotFlow provides more predictable and reliable behavior, crucial for production environments. LLM agents, while powerful, can sometimes be unpredictable and may get stuck in infinite loops of planning and decision-making. The deterministic nature of rule-based chatbots ensures consistent performance and reliability.
+4.  Controlled Reasoning: By hard-coding the reasoning part, you have full control over the decision-making process. This allows for precise management of interactions and ensures that the chatbot behaves exactly as intended, without unexpected deviations.
+(#TODO need rewrite and review)
 ## Installation
 <!-- todo -->
 <not ready for installation>
