@@ -1,0 +1,153 @@
+,url_for_product,product_name,product_availability,product_calories,product_price,have_sizes,Protein,Carbs,Fat,Salt,Saturates,Sugars
+0,https://mcdonalds-menu.co.uk/bacon-mayo-chicken/,Bacon Mayo Chicken,1,kcal: 332,£ 1.99,1,17.0,38.0,12.0,1.4,2.2,4.6
+1,https://mcdonalds-menu.co.uk/mayo-chicken/,Mayo Chicken,1,kcal: 285,£ 1.39,1,12.0,38.0,9.1,1.0,1.1,4.4
+2,https://mcdonalds-menu.co.uk/hamburger/,Hamburger,1,kcal: 251,£1.19,1,13.0,30.0,8.3,1.2,3.3,6.3
+3,https://mcdonalds-menu.co.uk/fries/,Fries,1,kcal: 237,£ 1.19,3,2.3,29.0,12.0,0.44,1.1,0.4
+4,https://mcdonalds-menu.co.uk/cheeseburger/,Cheeseburger,1,kcal: 298,£1.39,1,16.0,31.0,12.0,1.7,5.5,7.0
+5,https://mcdonalds-menu.co.uk/double-cheeseburger/,Double Cheeseburger,1,kcal: 438,£ 2.29,1,26.0,33.0,22.0,2.6,11.0,7.8
+6,https://mcdonalds-menu.co.uk/bacon-double-cheeseburger/,Bacon Double Cheeseburger,1,kcal: 495,£ 2.89,1,31.0,33.0,25.0,3.0,12.0,8.0
+7,https://mcdonalds-menu.co.uk/triple-cheeseburger/,Triple Cheeseburger,1,kcal: 578,£ 2.99,1,37.0,34.0,32.0,3.4,16.0,8.6
+8,https://mcdonalds-menu.co.uk/philly-cheese-stack/,Philly Cheese Stack,1,kcal: 643,£ 5.79,1,41.0,31.0,35.0,3.3,17.0,5.5
+9,https://mcdonalds-menu.co.uk/double-big-mac/,Big Mac,1,kcal: 493,£ 4.99,1,26.0,42.0,24.0,2.2,8.8,9.4
+10,https://mcdonalds-menu.co.uk/mcspicy/,McSpicy,1,kcal: 437,£ 5.59,1,24.0,46.0,17.0,2.0,1.8,6.2
+11,https://mcdonalds-menu.co.uk/mccrispy/,McCrispy,1,kcal: 484,£ 5.89,1,26.0,53.0,18.0,1.9,2.0,6.9
+12,https://mcdonalds-menu.co.uk/mcplant-burger/,McPlant,1,kcal: 429,£ 4.29,1,19.0,40.0,20.0,2.2,6.6,10.0
+13,https://mcdonalds-menu.co.uk/double-mcplant/,Double McPlant 🌱,1,kcal: 590,£ 5.39,1,31.0,43.0,32.0,2.8,10.0,11.0
+14,https://mcdonalds-menu.co.uk/triple-cheeseburger/,Triple Cheeseburger,1,kcal: 578,£ 2.99,1,37.0,34.0,32.0,3.4,16.0,8.6
+15,https://mcdonalds-menu.co.uk/bacon-mayo-chicken/,Bacon Mayo Chicken,1,kcal: 332,£ 1.59,1,17.0,38.0,12.0,1.4,2.2,4.6
+16,https://mcdonalds-menu.co.uk/mayo-chicken/,Mayo Chicken,1,kcal: 285,£ 1.39,1,12.0,38.0,9.1,1.0,1.1,4.4
+17,https://mcdonalds-menu.co.uk/quarter-pounder-cheese/,Quarter Pounder with Cheese,1,kcal: 507,£ 4.99,1,32.0,37.0,26.0,2.7,12.0,10.0
+18,https://mcdonalds-menu.co.uk/double-quarter-pounder-cheese/,Double Quarter Pounder with Cheese,1,kcal: 739,£ 6.09,1,53.0,37.0,42.0,3.2,19.0,10.0
+19,https://mcdonalds-menu.co.uk/filet-o-fish-burger/,Filet-o-Fish,1,kcal: 319,£ 4.69,1,14.0,37.0,12.0,1.6,2.3,4.8
+20,https://mcdonalds-menu.co.uk/mcchicken-sandwich/,McChicken Sandwich,1,kcal: 369,£ 4.69,1,17.0,41.0,9.1,1.3,1.5,6.3
+21,https://mcdonalds-menu.co.uk/vegetable-deluxe/,Vegetable Deluxe,1,kcal: 361,£ 4.19,1,8.8,51.0,12.0,1.3,1.2,7.3
+22,https://mcdonalds-menu.co.uk/hamburger/,Hamburger,1,kcal: 251,£1.19,1,13.0,30.0,8.3,1.2,3.3,6.3
+23,https://mcdonalds-menu.co.uk/cheeseburger/,Cheeseburger,1,kcal: 298,£1.39,1,16.0,31.0,12.0,1.7,5.5,7.0
+24,https://mcdonalds-menu.co.uk/double-cheeseburger/,Double Cheeseburger,1,kcal: 438,£ 2.29,1,26.0,33.0,22.0,2.6,11.0,7.8
+25,https://mcdonalds-menu.co.uk/bacon-double-cheeseburger/,Bacon Double Cheeseburger,1,kcal: 495,£ 2.89,1,31.0,33.0,25.0,3.0,12.0,8.0
+26,https://mcdonalds-menu.co.uk/big-tasty/,Big Tasty,0,kcal: 799,£ 5.49,1,45.0,49.0,46.0,3.3,18.0,10.0
+27,https://mcdonalds-menu.co.uk/big-tasty-with-bacon/,Big Tasty with Bacon,0,kcal: 845,£ 6.09,1,50.0,49.0,46.0,3.7,19.0,10.0
+28,https://mcdonalds-menu.co.uk/chicken-legend-bbq/,Chicken Legend with BBQ Sauce,0,kcal: 484,£ 4.89,1,27.0,61.0,14.0,1.6,1.6,8.4
+29,https://mcdonalds-menu.co.uk/chicken-legend-with-cool-mayo-at-mcdonalds/,Chicken Legend with Cool Mayo,0,kcal: 515,£ 4.29,1,27.0,56.0,19.0,1.8,2.1,4.2
+30,https://mcdonalds-menu.co.uk/chicken-legend-hot-spicy-mayo/,Chicken Legend with Hot & Spicy Mayo,0,kcal: 519,£ 4.89,1,27.0,56.0,20.0,1.8,2.1,4.5
+31,https://mcdonalds-menu.co.uk/chicken-big-mac/,Chicken Big Mac,0,kcal: 529,£ 5.29,1,40.0,36.0,40.0,2.4,15.0,6.5
+32,https://mcdonalds-menu.co.uk/steakhous-stack/,Steakhous Stack,0,kcal: 672,£ 5.79,1,40.0,36.0,40.0,2.4,15.0,6.5
+33,https://mcdonalds-menu.co.uk/spicy-spanish-stack/,The Spicy Spanish Stack,0,kcal: 581,£ 5.79,1,39.0,33.0,32.0,2.3,15.0,6.9
+34,https://mcdonalds-menu.co.uk/chicken-fiesta/,The Chicken Fiesta,0,kcal: 641,£ 5.79,1,31.0,69.0,25.0,3.2,7.1,10.0
+35,https://mcdonalds-menu.co.uk/italian-stack-burger/,The Italian Stack,0,kcal: 648,£ 6.19,1,40.0,40.0,34.0,2.5,15.0,9.5
+36,https://mcdonalds-menu.co.uk/crispy-chicken-italiano-burger/,Crispy Chicken Italiano,0,kcal: 638,£ 6.19,1,31.0,70.0,25.0,2.5,5.4,7.0
+37,https://mcdonalds-menu.co.uk/grand-big-mac/,Grand Big Mac,0,kcal: 693,£ 5.79,1,39.0,50.0,36.0,3.4,14.0,13.0
+38,https://mcdonalds-menu.co.uk/grand-big-mac-bacon/,Grand Big Mac with Bacon,0,kcal: 739,£ 6.59,1,44.0,50.0,39.0,3.8,15.0,13.0
+39,https://mcdonalds-menu.co.uk/big-mac-double/,Double Big Mac,0,kcal: 694,£ 5.89,1,43.0,43.0,38.0,2.8,15.0,9.1
+40,https://mcdonalds-menu.co.uk/double-bacon-big-mac/,Double Big Mac with Bacon,0,kcal: 740,£ 6.69,1,47.0,44.0,41.0,3.2,16.0,9.3
+41,https://mcdonalds-menu.co.uk/fries/,Fries,1,kcal: 237,£ 1.19,3,2.3,29.0,12.0,0.44,1.1,0.4
+42,https://mcdonalds-menu.co.uk/chilli-cheese-bites/,Chilli Cheese Bites,1,kcal: 231,£ 2.69,2,,21.0,14.0,,,
+43,https://mcdonalds-menu.co.uk/chicken-mcnuggets/,Chicken McNuggets,1,kcal: 261,£4.69,2,15.0,21.0,13.0,0.57,1.5,0.6
+44,https://mcdonalds-menu.co.uk/20-chicken-mcnuggets/,20 Chicken McNuggets,1,kcal: 869,£5.99,1,50.0,68.0,43.0,1.9,4.9,1.9
+45,https://mcdonalds-menu.co.uk/chicken-selects/,Chicken Selects,1,kcal: 359,£4.89,2,25.0,20.0,20.0,1.8,2.2,0.3
+46,https://mcdonalds-menu.co.uk/veggie-dippers/,Veggie Dippers,1,kcal: 321,£4.29,1,13.0,30.0,8.3,1.2,3.3,6.3
+47,https://mcdonalds-menu.co.uk/cucumber-sticks/,Cucumber Sticks,1,kcal: 12,79P,1,0.8,1.0,0.5,0.01,0.0,1.0
+48,https://mcdonalds-menu.co.uk/melon-fruit-bag/,Melon Fruit Bag,1,kcal: 17,79P,1,0.5,3.4,0.1,0.02,0.0,3.4
+49,https://mcdonalds-menu.co.uk/mozzarella-dippers/,Mozzarella Dippers,0,kcal: 256,£ 2.29,1,10.0,22.0,14.0,1.1,6.4,1.7
+50,https://mcdonalds-menu.co.uk/mozzarella-bites/,Mozzarella Bites,0,kcal: 211,£2.79,1,11.0,14.0,12.0,0.69,4.9,0.8
+51,https://mcdonalds-menu.co.uk/mozzarella-dippers-sharebox/,Mozzarella Dippers Sharebox,0,kcal: 769,£ 5.69,1,31.0,66.0,41.0,3.4,18.0,5.1
+52,https://mcdonalds-menu.co.uk/halloumi-fries/,Halloumi Fries,0,kcal: 210,£ 2.49,2,11.0,7.6,15.0,1.3,6.7,0.4
+53,https://mcdonalds-menu.co.uk/cheese-melt-dippers/,Cheese Melt Dippers,0,kcal: 243,£ 2.59,2,8.2,18.0,15.0,1.9,5.8,1.0
+54,https://mcdonalds-menu.co.uk/mcplant-burger/,McPlant 🌱,1,kcal: 429,£ 4.99,1,19.0,40.0,20.0,2.2,6.6,10.0
+55,https://mcdonalds-menu.co.uk/double-mcplant/,Double McPlant 🌱,1,kcal: 590,£ 5.39,1,31.0,43.0,32.0,2.8,10.0,11.0
+56,https://mcdonalds-menu.co.uk/vegetable-deluxe/,Vegetable Deluxe,1,kcal: 361,£ 4.69,1,8.8,51.0,12.0,1.3,1.2,7.3
+57,https://mcdonalds-menu.co.uk/veggie-dippers/,Veggie Dippers 🌱,1,kcal: 321,£4.69,1,13.0,30.0,8.3,1.2,3.3,6.3
+58,https://mcdonalds-menu.co.uk/spicy-veggie-one/,The Spicy Veggie One 🌱,1,kcal: 365,£ 4.09,1,8.7,59.0,8.8,1.2,1.3,8.6
+59,https://mcdonalds-menu.co.uk/fries/,Fries 🌱,1,kcal: 237,£ 1.19,3,2.3,29.0,12.0,0.44,1.1,0.4
+60,https://mcdonalds-menu.co.uk/side-salad/,Side Salad,1,kcal: 18,£ 1.49,1,0.9,2.1,0.5,0.05,0.0,1.9
+61,https://mcdonalds-menu.co.uk/cucumber-sticks/,Cucumber Sticks 🌱,1,kcal: 12,79P,1,0.8,1.0,0.5,0.01,0.0,1.0
+62,https://mcdonalds-menu.co.uk/melon-fruit-bag/,Melon Fruit Bag 🌱,1,kcal: 17,79P,1,0.5,3.4,0.1,0.02,0.0,3.4
+63,https://mcdonalds-menu.co.uk/sugar-donut/,Sugar Donut,1,kcal: 195,£ 1.39,1,3.5,21.0,11.0,0.41,4.3,6.0
+64,https://mcdonalds-menu.co.uk/millionaires-donut/,Millionaire's Donut,1,kcal: 250,£ 1.69,1,4.7,26.0,12.0,0.49,6.1,8.6
+65,https://mcdonalds-menu.co.uk/mixed-berry-muffin/,Mixed Berry Muffin,1,kcal: 298,£ 1.69,1,5.0,48.0,7.6,0.43,1.1,25.0
+66,https://mcdonalds-menu.co.uk/chocolate-brownie/,Chocolate Brownie,1,kcal: 316,£ 1.79,1,3.6,33.0,18.0,0.05,7.1,27.0
+67,https://mcdonalds-menu.co.uk/triple-chocolate-cookie/,Triple Chocolate Cookie,1,kcal: 320,£ 1.39,1,3.9,33.0,13.0,0.39,7.2,21.0
+68,https://mcdonalds-menu.co.uk/oreo-mcflurry/,Oreo McFlurry,1,kcal: 258,£ 1.19,2,5.2,38.0,9.0,0.27,5.5,32.0
+69,https://mcdonalds-menu.co.uk/smarties-mcflurry/,Smarties McFlurry,1,kcal: 273,£ 1.19,2,5.2,40.0,10.0,0.19,6.7,
+70,https://mcdonalds-menu.co.uk/maltesers-mcflurry/,Maltesers McFlurry,1,kcal: 266,£ 1.19,2,5.3,38.0,10.0,0.2,6.7,34.0
+71,https://mcdonalds-menu.co.uk/caesar-bacon-chicken-one-crispy/,The Caesar & Bacon Chicken One (crispy),1,kcal: 532,£ 4.89,1,32.0,38.0,13.0,1.9,3.0,2.9
+72,https://mcdonalds-menu.co.uk/caesar-bacon-chicken-one-grilled/,The Caesar & Bacon Chicken One (grilled),1,kcal: 403,£ 4.89,1,32.0,38.0,13.0,1.9,3.0,2.9
+73,https://mcdonalds-menu.co.uk/garlic-mayo-chicken-one-grilled/,The Garlic Mayo Chicken One (grilled),1,kcal: 332,£ 4.89,1,26.0,42.0,7.0,1.9,1.6,6.9
+74,https://mcdonalds-menu.co.uk/garlic-mayo-chicken-one-crispy/,The Garlic Mayo Chicken One (crispy),1,kcal: 481,£ 4.89,1,22.0,48.0,21.0,1.9,2.6,3.0
+75,https://mcdonalds-menu.co.uk/sweet-chilli-chicken-one-grilled/,The Sweet Chilli Chicken One (grilled),1,kcal: 320,£ 4.89,1,24.0,41.0,5.8,1.6,1.1,7.1
+76,https://mcdonalds-menu.co.uk/sweet-chilli-chicken-one-crispy/,The Sweet Chilli Chicken One (crispy),1,kcal: 320,£ 4.89,1,22.0,52.0,18.0,2.1,2.3,6.7
+77,https://mcdonalds-menu.co.uk/bbq-and-bacon-chicken-one-grilled/,The BBQ and Bacon Chicken One (grilled),1,kcal: 366,£ 4.89,1,26.0,42.0,7.0,1.9,1.6,6.9
+78,https://mcdonalds-menu.co.uk/bbq-and-bacon-chicken-one-crispy/,The BBQ and Bacon Chicken One (crispy),1,kcal: 469,£ 4.89,1,24.0,53.0,20.0,2.3,2.8,6.5
+79,https://mcdonalds-menu.co.uk/spicy-veggie-one/,The Spicy Veggie One,1,kcal: 365,£ 4.89,1,8.7,59.0,8.8,1.2,1.3,8.6
+80,https://mcdonalds-menu.co.uk/spicy-sriracha-chicken-one-crispy/,The Spicy Sriracha Chicken One (crispy),0,kcal: 432,£ 4.89,1,22.0,49.0,15.0,1.9,2.1,3.5
+81,https://mcdonalds-menu.co.uk/spicy-sriracha-chicken-one-grilled/,The Spicy Sriracha Chicken One (grilled),0,kcal: 238,£ 4.89,1,24.0,38.0,24.0,1.5,0.9,3.9
+82,https://mcdonalds-menu.co.uk/hamburger-happy-meal/,Hamburger Happy Meal,1,kcal: 250,£ 3.59,1,20.0,42.0,22.0,1.48,6.1,18.3
+83,https://mcdonalds-menu.co.uk/cheeseburger-happy-meal/,Cheeseburger Happy Meal,1,kcal: 298,£ 3.59,1,25.0,43.0,16.5,1.98,8.3,19.0
+84,https://mcdonalds-menu.co.uk/chicken-mcnuggets-happy-meal-4pc/,4 Chicken McNuggets Happy Meal,1,kcal: 174,£ 3.59,1,19.0,26.0,13.2,0.66,3.8,12.4
+85,https://mcdonalds-menu.co.uk/veggie-dippers-happy-meal/,Veggie Dippers Happy Meal,1,kcal: 197,£ 3.59,1,12.3,32.0,11.1,0.85,3.5,13.2
+86,https://mcdonalds-menu.co.uk/fish-fingers-happy-meal/,Fish Fingers Happy Meal,1,kcal: 151,£ 3.59,1,20.0,26.0,10.5,1.04,3.4,12.2
+87,https://mcdonalds-menu.co.uk/side-salad/,Side Salad,1,kcal: 18,£ 1.09,1,0.9,2.1,0.5,0.05,0.0,1.9
+88,https://mcdonalds-menu.co.uk/crispy-chicken-salad/,Crispy Chicken Salad,1,kcal: 265,£ 3.79,1,21.0,17.0,12.0,0.82,1.4,3.6
+89,https://mcdonalds-menu.co.uk/crispy-chicken-and-bacon-salad/,Crispy Chicken and Bacon Salad,1,kcal: 315,£ 4.09,1,22.0,6.1,1.4,0.72,0.4,4.3
+90,https://mcdonalds-menu.co.uk/grilled-chicken-salad/,Grilled Chicken Salad,1,kcal: 133,£ 3.79,1,22.0,6.1,1.4,0.72,0.4,4.3
+91,https://mcdonalds-menu.co.uk/grilled-chicken-and-bacon-salad/,Grilled Chicken and Bacon Salad,1,kcal: 183,£ 4.09,1,26.0,6.2,5.2,1.0,1.7,4.3
+92,,Smoky Barbecue Dip,1,kcal: 84,30P,0,,,,,,
+93,,Sweet Chilli Dip,1,kcal: 89,30P,0,,,,,,
+94,,Sour Cream and Chive Dip,1,kcal: 140,30P,0,,,,,,
+95,https://mcdonalds-menu.co.uk/yoghurt-granola-berry/,Berry & Granola Yogurt,1,kcal: 290,£ 2.49,0,,,,,,
+96,https://mcdonalds-menu.co.uk/festive-pie/,Festive Pie,1,kcal: 302,£ 1.89,1,2.9,37.0,16.0,0.33,3.8,17.0
+97,https://mcdonalds-menu.co.uk/chocolate-brownie/,Chocolate Brownie,1,kcal: 316,£ 1.79,1,3.6,33.0,18.0,0.05,7.1,27.0
+98,https://mcdonalds-menu.co.uk/apple-pie/,Apple Pie,1,kcal: 243,£ 1.19,1,2.3,27.0,14.0,0.31,3.0,9.2
+99,https://mcdonalds-menu.co.uk/sugar-donut/,Sugar Donut,1,kcal: 195,£ 1.39,1,3.5,21.0,11.0,0.41,4.3,6.0
+100,https://mcdonalds-menu.co.uk/mixed-berry-muffin/,Mixed Berry Muffin,1,kcal: 298,£ 1.69,1,5.0,48.0,7.6,0.43,1.1,25.0
+101,https://mcdonalds-menu.co.uk/triple-chocolate-cookie/,Triple Chocolate Cookie,1,kcal: 320,£ 1.39,1,3.9,33.0,13.0,0.39,7.2,21.0
+102,https://mcdonalds-menu.co.uk/millionaires-donut/,Millionaire's Donut,1,kcal: 250,£ 1.69,1,4.7,26.0,12.0,0.49,6.1,8.6
+103,https://mcdonalds-menu.co.uk/oreo-mcflurry/,Oreo McFlurry,1,kcal: 258,£ 1.19,2,5.2,38.0,9.0,0.27,5.5,32.0
+104,https://mcdonalds-menu.co.uk/smarties-mcflurry/,Smarties McFlurry,1,kcal: 273,£ 1.19,2,5.2,40.0,10.0,0.19,6.7,
+105,https://mcdonalds-menu.co.uk/maltesers-mcflurry/,Maltesers McFlurry,1,kcal: 266,£ 1.19,2,5.3,38.0,10.0,0.2,6.7,34.0
+106,https://mcdonalds-menu.co.uk/tiramisu-mcflurry/,Tiramisu McFlurry,1,kcal: 419,£ 1.69,2,6.2,50.0,13.0,0.4,9.2,44.0
+107,https://mcdonalds-menu.co.uk/galaxy-cookie-crumble-mcflurry/,Galaxy Cookie Crumble McFlurry,0,kcal: 356,£ 1.69,2,5.2,40.0,10.0,0.19,6.7,
+108,https://mcdonalds-menu.co.uk/galaxy-caramel-mcflurry/,Galaxy Caramel McFlurry,0,kcal: 366,£ 1.69,2,6.0,53.0,14.0,0.33,9.1,47.0
+109,https://mcdonalds-menu.co.uk/celebrations-mcflurry/,Celebrations McFlurry,0,kcal: 178,£ 1.19,2,6.0,51.0,14.0,0.25,9.0,46.0
+110,https://mcdonalds-menu.co.uk/vanilla-milkshake/,Vanilla Milkshake,1,kcal: 192,£ 1.79,3,5.5,33.0,3.7,0.21,2.6,31.0
+111,https://mcdonalds-menu.co.uk/banana-milkshake/,Banana Milkshake,1,kcal: 188,£ 1.79,3,5.5,33.0,3.7,0.2,2.6,30.0
+112,https://mcdonalds-menu.co.uk/strawberry-milkshake/,Strawberry Milkshake,1,kcal: 188,£ 1.79,3,5.5,33.0,3.7,0.22,2.6,30.0
+113,https://mcdonalds-menu.co.uk/chocolate-milkshake/,Chocolate Milkshake,1,kcal: 192,£ 1.79,3,5.9,32.0,10.0,0.35,2.8,27.0
+114,https://mcdonalds-menu.co.uk/hot-chocolate-deluxe/,Hot Chocolate Deluxe,1,kcal: 201,£ 1.69,1,2.6,32.0,6.5,0.59,3.8,28.0
+115,https://mcdonalds-menu.co.uk/caramel-waffle-latte/,Caramel Waffle Latte,1,kcal: 184,£ 2.19,2,7.9,21.0,7.4,0.26,4.9,21.0
+116,,White Coffee,1,kcal: 54,99P,0,,,,,,
+117,,Tea,1,kcal: 6,99P,0,,,,,,
+118,,Toffee Latte,1,kcal: 150,£ 1.69,0,,,,,,
+119,,Latte,1,kcal: 145,£ 1.69,0,,,,,,
+120,,Hot Chocolate,1,kcal: 173,99P,0,,,,,,
+121,,Flat White,1,kcal: 86,£ 1.69,0,,,,,,
+122,,Espresso,1,kcal: 1,99P,0,,,,,,
+123,,Double Espresso,1,kcal: 1,£ 1.19,0,,,,,,
+124,,Cappuccino,1,kcal: 97,£ 1.69,0,,,,,,
+125,,Black Coffee,1,kcal: 6,99P,0,,,,,,
+126,https://mcdonalds-menu.co.uk/raspberry-ripple-iced-cooler/,Raspberry Ripple Iced Cooler,1,kcal: 278,£ 2.49,2,6.2,41.0,9.6,0.3,5.7,36.0
+127,https://mcdonalds-menu.co.uk/caramel-iced-frappe/,Caramel Iced Frappe,1,kcal: 306,£ 2.49,2,6.4,38.0,16.0,0.31,10.0,33.0
+128,https://mcdonalds-menu.co.uk/belgian-milk-chocolate-frappe/,Belgian Milk Chocolate Frappe,1,kcal: 286,£ 2.69,2,5.5,35.0,14.0,0.31,8.8,31.0
+129,https://mcdonalds-menu.co.uk/strawberries-cream-frappe/,Strawberries Frappe,1,kcal: 227,£ 2.59,1,5.0,38.0,4.0,0.29,6.9,45.0
+130,https://mcdonalds-menu.co.uk/mango-pineapple-smoothie/,Mango and Pineapple Smoothie,1,kcal: 180,£ 2.49,2,1.2,43.0,0.5,0.11,0.0,39.0
+131,https://mcdonalds-menu.co.uk/frozen-strawberry-lemonade/,Frozen Strawberry Lemonade,1,kcal: 201,£ 2.29,2,0.3,49.0,0.5,0.02,0.3,32.0
+132,,Coca-Cola,1,kcal: 106,£ 1.07,0,,,,,,
+133,,Coca-Cola Zero,1,kcal: 1,99P,0,,,,,,
+134,,Diet Coke,1,kcal: 1,99P,0,,,,,,
+135,,Fanta,1,kcal: 48,99P,0,,,,,,
+136,,Sprite Zero,1,kcal: 3,99P,0,,,,,,
+137,https://mcdonalds-menu.co.uk/mighty-mcmuffin/,Mighty McMuffin,1,kcal: 515,£ 5.19,1,35.0,31.0,28.0,2.8,10.0,5.7
+138,https://mcdonalds-menu.co.uk/egg-cheese-mcmuffin/,Egg & Cheese McMuffin,1,kcal: 295,£ 2.39,1,15.0,27.0,14.0,1.1,5.0,2.6
+139,https://mcdonalds-menu.co.uk/bacon-roll/,Bacon Roll,1,kcal: 332,£ 3.19,3,21.0,42.0,9.1,2.0,2.8,8.1
+140,https://mcdonalds-menu.co.uk/breakfast-roll/,Breakfast Roll,1,kcal: 496,£ 3.39,3,31.0,42.0,22.0,2.7,8.0,8.3
+141,https://mcdonalds-menu.co.uk/cheesy-bacon-flatbread/,Cheesy Bacon Flatbread,1,kcal: 278,£ 1.49,1,14.0,28.0,12.0,1.8,6.0,2.5
+142,https://mcdonalds-menu.co.uk/bacon-egg-mcmuffin/,Bacon & Egg McMuffin,1,kcal: 335,£ 2.79,1,20.0,27.0,16.0,1.5,5.9,2.7
+143,https://mcdonalds-menu.co.uk/double-bacon-egg-mcmuffin/,Double Bacon & Egg McMuffin,1,kcal: 376,£ 3.19,1,14.0,28.0,12.0,1.8,6.0,2.5
+144,https://mcdonalds-menu.co.uk/sausage-egg-mcmuffin/,Sausage & Egg McMuffin,1,kcal: 423,£ 2.79,1,25.0,28.0,23.0,1.8,8.3,3.2
+145,https://mcdonalds-menu.co.uk/double-sausage-egg-mcmuffin/,Double Sausage & Egg McMuffin,1,kcal: 551,£ 3.19,1,35.0,28.0,32.0,2.5,12.0,3.7
+146,https://mcdonalds-menu.co.uk/mini-potato-waffles/,Mini Potato Waffles,1,kcal: 201,£1.39,1,1.7,21.0,12.0,0.94,1.2,0.3
+147,https://mcdonalds-menu.co.uk/muffin-with-jam/,Muffin with Jam,1,kcal: 214,£ 1.49,1,5.5,35.0,5.6,0.44,1.4,11.0
+148,https://mcdonalds-menu.co.uk/hash-brown/,Hash Brown,1,kcal: 127,£ 1.19,1,1.1,13.0,7.4,0.64,0.7,0.2
+149,https://mcdonalds-menu.co.uk/pancakes-syrup/,Pancakes & Syrup,1,kcal: 477,£ 3.29,1,10.0,95.0,5.6,1.5,0.9,41.0
+150,https://mcdonalds-menu.co.uk/pancakes-sausage-with-syrup/,Pancakes & Sausage with Syrup,1,kcal: 612,£ 3.29,1,20.0,96.0,16.0,2.3,4.6,41.0
+151,https://mcdonalds-menu.co.uk/porridge/,Porridge,1,kcal: 154,£ 1.99,1,7.8,23.0,3.0,0.17,1.3,6.4

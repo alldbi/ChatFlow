@@ -1,0 +1,7 @@
+pytest
+langchain[openai]
+python-dotenv
+chromadb
+pypdf
+langchain-text-splitters 
+tiktoken
